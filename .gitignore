@@ -1,0 +1,11 @@
+build/
+*.asm
+*.lst
+*.map
+*.mem
+*.ihx
+*.hex
+*.bin
+*.rel
+*.rst
+*.sym
