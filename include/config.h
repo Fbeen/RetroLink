@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "controller_learn.h"
 
 /*
  * WARNING:
@@ -20,6 +21,15 @@ typedef struct
     uint8_t mouse_right_button;
 
     uint8_t joy_autofire_speed;
+
+    /* joystick learning mappings */
+
+    control_map_t joy_up;
+    control_map_t joy_down;
+    control_map_t joy_left;
+    control_map_t joy_right;
+    control_map_t joy_fire;
+    control_map_t joy_autofire;
 
 } config_t;
 

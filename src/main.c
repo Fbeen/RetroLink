@@ -10,7 +10,6 @@ typedef unsigned char  __data             UINT8D;
 #include "CH559.h"
 #include "USBHost.h"
 #include "util.h"
-#include "analogOut.h"
 #include "console.h"
 #include "retro_mouse.h"
 #include "config.h"
@@ -55,13 +54,20 @@ void mTimer0SetData(unsigned short dat)
 
 void mTimer0Interrupt( void ) __interrupt INT_NO_TMR0 // timer0 interrupt-serviceroutine, gebruik registergroep 1
 {   // In modus 3 gebruikt TH0 Timer1 interrupt-resource
-    rm_nextStep();
+    if(USBHost_getControllerMode() == CTRL_MODE_MOUSE)
+    {
+        rm_nextStep();
+    }
+    else
+    {
+        /* joystick timing / autofire later */
+    }
     mTimer0SetData(20000);  // set timer on 0.5 millisecond (48.000.000 hz / 20.000 = 2400 hz)
 }
 
 void main()
 {
-    SP = 0x70;
+    SP = 0x80;
 
     /* system clock for USB */
     initClock();

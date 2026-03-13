@@ -2,6 +2,7 @@
 #define __USBHOST_H__
 
 #include <stdint.h>
+#include "util.h"
 
 #define ROOT_HUB_COUNT 2
 #define MAX_HID_DEVICES 4
@@ -86,5 +87,7 @@ uint8_t checkRootHubConnections(void);
 void pollHIDdevice(void);
 
 void resetHubDevices(uint8_t hub);
+
+controller_mode_t USBHost_getControllerMode(void);
 
 #endif

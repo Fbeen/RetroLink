@@ -4,11 +4,11 @@
 #include <stdbool.h>
 #include "config.h"
 
-config_t g_config;
+__xdata config_t g_config;
 
 #define CONFIG_FLASH_ADDR 0xF000 // Must be even!
 #define CONFIG_MAGIC      0x524C
-#define CONFIG_VERSION    102
+#define CONFIG_VERSION    104
 
 /* fallback als jouw CH559.h deze defines niet heeft */
 #ifndef ROM_CMD_PROG
@@ -70,7 +70,52 @@ void config_default(void)
     g_config.mouse_speed = 2;
     g_config.mouse_left_button = 1;
     g_config.mouse_right_button = 2;
+
     g_config.joy_autofire_speed = 0;
+
+    /* -------- joystick default mapping -------- */
+
+    /* UP */
+    g_config.joy_up.offset = 1;
+    g_config.joy_up.mask = 0;
+    g_config.joy_up.threshold = 127;
+    g_config.joy_up.type = CTRL_INPUT_AXIS;
+    g_config.joy_up.axis_dir = AXIS_NEG;
+
+    /* DOWN */
+    g_config.joy_down.offset = 1;
+    g_config.joy_down.mask = 0;
+    g_config.joy_down.threshold = 127;
+    g_config.joy_down.type = CTRL_INPUT_AXIS;
+    g_config.joy_down.axis_dir = AXIS_POS;
+
+    /* LEFT */
+    g_config.joy_left.offset = 0;
+    g_config.joy_left.mask = 0;
+    g_config.joy_left.threshold = 127;
+    g_config.joy_left.type = CTRL_INPUT_AXIS;
+    g_config.joy_left.axis_dir = AXIS_NEG;
+
+    /* RIGHT */
+    g_config.joy_right.offset = 0;
+    g_config.joy_right.mask = 0;
+    g_config.joy_right.threshold = 127;
+    g_config.joy_right.type = CTRL_INPUT_AXIS;
+    g_config.joy_right.axis_dir = AXIS_POS;
+
+    /* FIRE */
+    g_config.joy_fire.offset = 5;
+    g_config.joy_fire.mask = 0x20;
+    g_config.joy_fire.threshold = 0;
+    g_config.joy_fire.type = CTRL_INPUT_BUTTON;
+    g_config.joy_fire.axis_dir = 0;
+
+    /* AUTOFIRE */
+    g_config.joy_autofire.offset = 5;
+    g_config.joy_autofire.mask = 0x10;
+    g_config.joy_autofire.threshold = 0;
+    g_config.joy_autofire.type = CTRL_INPUT_BUTTON;
+    g_config.joy_autofire.axis_dir = 0;
 }
 
 bool config_load(void)

@@ -1,12 +1,16 @@
+#include <string.h>
 #include "CH559.h"
 #include "USBHost.h"
 #include "hid_mouse.h"
-#include "util.h"
-#include <string.h>
+#include "controller_learn.h"
+
+/* laatste HID report voor wizard */
+uint8_t __xdata g_last_report[LEARN_MAX_REPORT];
+uint8_t g_last_report_len = 0;
 
 /* Your parsers live elsewhere; keep the same signature you used before */
 extern void parseMouseData(uint8_t hub, vendor_product_id_t *vp, unsigned char __xdata *report);
-extern void parseJoystickData(uint8_t hub, vendor_product_id_t *vp, unsigned char __xdata *report);
+extern void parseJoystickData(uint8_t *report);
 
 /* ---------------- Setup requests ---------------- */
 
@@ -62,16 +66,16 @@ __code unsigned char SetHIDIdleRequest[] =
 __at(0x0000) unsigned char __xdata RxBuffer[MAX_PACKET_SIZE];
 __at(0x0100) unsigned char __xdata TxBuffer[MAX_PACKET_SIZE];
 
-#define RECEIVE_BUFFER_LEN 512
+#define RECEIVE_BUFFER_LEN 128
 __xdata unsigned char receiveDataBuffer[RECEIVE_BUFFER_LEN];
 
 /* ---------------- Minimal state ---------------- */
 
-__xdata uint8_t endpoint0Size;
+uint8_t endpoint0Size;
 
-static root_hub_device_t rootHubDevice;
-static hid_device_t hidDevice;
-static vendor_product_id_t vendorProductID;
+static root_hub_device_t __xdata rootHubDevice;
+static hid_device_t __xdata hidDevice;
+static vendor_product_id_t __xdata vendorProductID;
 
 /* ---------------- Helpers ---------------- */
 
@@ -156,9 +160,9 @@ static void selectHubPort(void)
 
 static unsigned char hostTransfer(unsigned char endp_pid, unsigned char tog, unsigned short timeout)
 {
-    unsigned short retries = 0;
-    unsigned char  r;
-    unsigned short i;
+    static unsigned short retries = 0;
+    static unsigned char  r;
+    static unsigned short i;
 
     UH_RX_CTRL = tog;
     UH_TX_CTRL = tog;
@@ -214,9 +218,11 @@ static unsigned char hostTransfer(unsigned char endp_pid, unsigned char tog, uns
 
 static unsigned char hostCtrlTransfer(unsigned char __xdata *DataBuf, unsigned short *RetLen, unsigned short maxLength)
 {
-    unsigned short RemLen;
-    unsigned char  s, RxLen, i;
-    unsigned char __xdata *pBuf = DataBuf;
+    static unsigned short RemLen;
+    static unsigned char  s, RxLen, i;
+    static unsigned char __xdata *pBuf;
+
+    pBuf = DataBuf;
 
     PXUSB_SETUP_REQ pSetupReq = (PXUSB_SETUP_REQ)TxBuffer;
 
@@ -384,8 +390,8 @@ static void setHidIdle(uint8_t interfaceNumber)
 /* Find first HID interface + first interrupt IN endpoint */
 static unsigned char bindFirstHidInterface(void)
 {
-    unsigned short total;
-    unsigned short i;
+    static unsigned short total;
+    static unsigned short i;
 
     PXUSB_CFG_DESCR cfg = (PXUSB_CFG_DESCR)receiveDataBuffer;
     total = (unsigned short)cfg->wTotalLengthL | ((unsigned short)cfg->wTotalLengthH << 8);
@@ -502,11 +508,11 @@ void initUSB_Host(void)
 
 static unsigned char initializeRootHubConnection(void)
 {
-    unsigned char s;
-    unsigned char cfg;
-    unsigned char addr;
-    unsigned char i;
-    unsigned char retry;
+    static unsigned char s;
+    static unsigned char cfg;
+    static unsigned char addr;
+    static unsigned char i;
+    static unsigned char retry;
 
     for (retry = 0; retry < 5; retry++)
     {
@@ -534,6 +540,12 @@ static unsigned char initializeRootHubConnection(void)
         if (s != ERR_SUCCESS)
             continue;
 
+        DEBUG_OUT("USB device VID:%02X%02X PID:%02X%02X\r\n",
+            vendorProductID.idVendorH,
+            vendorProductID.idVendorL,
+            vendorProductID.idProductH,
+            vendorProductID.idProductL);
+
         /* address 1 is enough (single device) */
         addr = 1;
         s = setUsbAddress(addr);
@@ -555,6 +567,16 @@ static unsigned char initializeRootHubConnection(void)
         s = bindFirstHidInterface();
         if (s != ERR_SUCCESS)
             continue;
+            
+        /* Debug: show detected HID device type */
+        if(hidDevice.type == HID_TYPE_MOUSE)
+        {
+            puts("Mouse connected");
+        }
+        else if(hidDevice.type == HID_TYPE_JOYSTICK)
+        {
+            puts("Joystick connected");
+        }
 
         rootHubDevice.status = ROOT_DEVICE_SUCCESS;
         return ERR_SUCCESS;
@@ -619,12 +641,47 @@ void pollHIDdevice(void)
     if (!len)
         return;
 
+    /* kopieer report voor wizard */
+    if(len > LEARN_MAX_REPORT)
+        len = LEARN_MAX_REPORT;
+
+    for(uint8_t i = 0; i < len; i++)
+        g_last_report[i] = RxBuffer[i];
+
+    g_last_report_len = len;
+/*
+puts("len=");
+print_u8(g_last_report_len);
+puts("\r\n");
+    debug_print_report(g_last_report, g_last_report_len);
+*/
     if (hidDevice.type == HID_TYPE_MOUSE)
     {
         hid_mouse_parse(RxBuffer);
     }
     else if (hidDevice.type == HID_TYPE_JOYSTICK)
     {
-        parseJoystickData(0, &vendorProductID, RxBuffer);
+        if(controller_learning_active)
+        {
+            controller_learn_process(RxBuffer, USB_RX_LEN);
+        }
+        else
+        {
+            parseJoystickData(g_last_report);
+        }
     }
+}
+
+controller_mode_t USBHost_getControllerMode(void)
+{
+    if(!hidDevice.connected)
+        return CTRL_MODE_NONE;
+
+    if(hidDevice.type == HID_TYPE_MOUSE)
+        return CTRL_MODE_MOUSE;
+
+    if(hidDevice.type == HID_TYPE_JOYSTICK)
+        return CTRL_MODE_JOYSTICK;
+
+    return CTRL_MODE_NONE;
 }

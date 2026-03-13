@@ -12,12 +12,12 @@ speedtable (fixed point ×256)
 256 = 1.0 x
 */
 
-static const uint16_t mouse_speed_table[] = {64,96,128,192,256};
+static const __code uint16_t mouse_speed_table[] = {64,96,128,192,256};
 
 void hid_mouse_parse(uint8_t *RxBuffer)
 {
-    static int32_t accx = 0;
-    static int32_t accy = 0;
+    static __xdata int32_t accx = 0;
+    static __xdata int32_t accy = 0;
 
     mouse_report_t m;
 

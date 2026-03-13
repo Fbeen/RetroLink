@@ -72,9 +72,9 @@ unsigned char UART0Receive()
 
 void UART0Send(unsigned char b)
 {
-	SBUF = b;
-	while(TI == 0);
-	TI = 1;
+    TI = 0;          // clear flag
+    SBUF = b;        // start transmission
+    while(TI == 0);  // wait until finished
 }
 
 /**
@@ -259,4 +259,54 @@ void delay(unsigned short n)
 		delayUs(1000);
 		--n;
 	}
+}
+
+void print_u8(uint8_t v)
+{
+    uint8_t hundreds = v / 100;
+    uint8_t tens     = (v / 10) % 10;
+    uint8_t ones     = v % 10;
+
+    if(hundreds)
+        UART0Send('0' + hundreds);
+
+    if(hundreds || tens)
+        UART0Send('0' + tens);
+
+    UART0Send('0' + ones);
+}
+
+void print_str(const char *s)
+{
+    while(*s)
+    {
+        UART0Send(*s++);
+    }
+}
+
+static const char hex_digits[] = "0123456789ABCDEF";
+
+void print_hex8(uint8_t v)
+{
+    UART0Send(hex_digits[(v >> 4) & 0x0F]);
+    UART0Send(hex_digits[v & 0x0F]);
+}
+
+void debug_print_report(uint8_t *r, uint8_t len)
+{
+    uint8_t i;
+
+    print_str("HID:");
+
+    if(len > 16)
+        len = 16;
+
+    for(i = 0; i < len; i++)
+    {
+        UART0Send(' ');
+        print_hex8(r[i]);
+    }
+
+    UART0Send('\r');
+    UART0Send('\n');
 }

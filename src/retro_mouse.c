@@ -1,15 +1,17 @@
 #include "retro_mouse.h"
 #include "hardware.h"
 
-static int16_t  mx = 0;
-static int16_t  my = 0;
+volatile uint8_t mouse_buttons = 0;
 
-static uint8_t x_state = 0;
-static uint8_t y_state = 0;
+static __xdata int16_t  mx = 0;
+static __xdata int16_t  my = 0;
+
+static uint8_t __xdata x_state = 0;
+static uint8_t __xdata y_state = 0;
 
 // quadrature states: 00 -> 01 -> 11 -> 10
 // bit0 = A, bit1 = B
-static const uint8_t quad[4] =
+static const __code uint8_t quad[4] =
 {
     0b00,
     0b01,
@@ -24,6 +26,9 @@ void rm_init(void)
 
     /* first all outputs safe to HIGH */
     P2 = 0xFF;
+
+    /* force bit5 LOW */
+    P2 &= ~(1 << 5);
 
     /* and then configure them to output */
     P2_DIR = 0b01111111;
