@@ -284,7 +284,7 @@ void print_str(const char *s)
     }
 }
 
-static const char hex_digits[] = "0123456789ABCDEF";
+static const char __code hex_digits[] = "0123456789ABCDEF";
 
 void print_hex8(uint8_t v)
 {
@@ -295,8 +295,6 @@ void print_hex8(uint8_t v)
 void debug_print_report(uint8_t *r, uint8_t len)
 {
     uint8_t i;
-
-    print_str("HID:");
 
     if(len > 16)
         len = 16;

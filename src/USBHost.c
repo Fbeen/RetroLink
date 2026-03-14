@@ -11,6 +11,12 @@ uint8_t g_last_report_len = 0;
 /* Your parsers live elsewhere; keep the same signature you used before */
 extern void parseMouseData(uint8_t hub, vendor_product_id_t *vp, unsigned char __xdata *report);
 extern void parseJoystickData(uint8_t *report);
+extern void rm_init(void);
+extern void rj_init(void);
+
+/* remember if there is a USB device connected */
+static uint8_t device_present = 0;
+static controller_mode_t currentMode = CTRL_MODE_NONE;
 
 /* ---------------- Setup requests ---------------- */
 
@@ -504,6 +510,10 @@ void initUSB_Host(void)
     resetHubDevices(0);
 
     USB_INT_EN = bUIE_TRANSFER | bUIE_DETECT;
+
+    setControllerMode(CTRL_MODE_NONE);
+
+    initializeRootHubConnection();
 }
 
 static unsigned char initializeRootHubConnection(void)
@@ -528,9 +538,17 @@ static unsigned char initializeRootHubConnection(void)
             if (enableRootHubPort() == ERR_SUCCESS)
                 break;
         }
+
         if (i == 100)
         {
             disableRootHubPort();
+
+            if(device_present)
+            {
+                setControllerMode(CTRL_MODE_NONE);
+                device_present = 0;
+            }
+
             continue;
         }
 
@@ -546,7 +564,6 @@ static unsigned char initializeRootHubConnection(void)
             vendorProductID.idProductH,
             vendorProductID.idProductL);
 
-        /* address 1 is enough (single device) */
         addr = 1;
         s = setUsbAddress(addr);
         if (s != ERR_SUCCESS)
@@ -565,21 +582,33 @@ static unsigned char initializeRootHubConnection(void)
             continue;
 
         s = bindFirstHidInterface();
-        if (s != ERR_SUCCESS)
-            continue;
-            
-        /* Debug: show detected HID device type */
-        if(hidDevice.type == HID_TYPE_MOUSE)
+
+        if (s == ERR_SUCCESS)
         {
-            puts("Mouse connected");
+            if(hidDevice.type == HID_TYPE_MOUSE)
+            {
+                setControllerMode(CTRL_MODE_MOUSE);
+            }
+            else
+            {
+                /* treat all other HID devices as joystick */
+                setControllerMode(CTRL_MODE_JOYSTICK);
+            }
         }
-        else if(hidDevice.type == HID_TYPE_JOYSTICK)
+        else
         {
-            puts("Joystick connected");
+            /* device present but not usable for RetroLink */
+            setControllerMode(CTRL_MODE_NONE);
         }
 
         rootHubDevice.status = ROOT_DEVICE_SUCCESS;
         return ERR_SUCCESS;
+    }
+
+    if(device_present)
+    {
+        puts("No device connected");
+        device_present = 0;
     }
 
     rootHubDevice.status = ROOT_DEVICE_FAILED;
@@ -610,6 +639,7 @@ uint8_t checkRootHubConnections(void)
         {
             resetHubDevices(0);
             disableRootHubPort();
+            setControllerMode(CTRL_MODE_NONE);
             s = ERR_USB_DISCON;
         }
     }
@@ -667,21 +697,39 @@ puts("\r\n");
         }
         else
         {
+            // debug_print_report(g_last_report, g_last_report_len);
             parseJoystickData(g_last_report);
         }
     }
 }
 
+static void setControllerMode(controller_mode_t mode)
+{
+    if(mode == currentMode)
+        return;
+
+    currentMode = mode;
+
+    switch(mode)
+    {
+        case CTRL_MODE_MOUSE:
+            rm_init();
+            puts("Mouse connected");
+            break;
+
+        case CTRL_MODE_JOYSTICK:
+            rj_init();
+            puts("Joystick connected");
+            break;
+
+        case CTRL_MODE_NONE:
+        default:
+            puts("No controller");
+            break;
+    }
+}
+
 controller_mode_t USBHost_getControllerMode(void)
 {
-    if(!hidDevice.connected)
-        return CTRL_MODE_NONE;
-
-    if(hidDevice.type == HID_TYPE_MOUSE)
-        return CTRL_MODE_MOUSE;
-
-    if(hidDevice.type == HID_TYPE_JOYSTICK)
-        return CTRL_MODE_JOYSTICK;
-
-    return CTRL_MODE_NONE;
+    return currentMode;
 }

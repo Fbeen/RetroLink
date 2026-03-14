@@ -12,6 +12,7 @@ typedef unsigned char  __data             UINT8D;
 #include "util.h"
 #include "console.h"
 #include "retro_mouse.h"
+#include "retro_joystick.h"
 #include "config.h"
 #include "hardware.h"
 
@@ -21,6 +22,10 @@ typedef unsigned char  __data             UINT8D;
 #define mTimer0Clk4DivFsys( ) (T2MOD &= ~bTMR_CLK;T2MOD |= bT0_CLK) //timer, clock=Fsys/4
 #define mTimer0Clk12DivFsys( ) (T2MOD &= ~(bTMR_CLK | bT0_CLK)) //timer, clock= Fsys/12
 #define mTimer0CountClk( ) (TMOD |= bT0_CT) //counter, the falling edge of T0 pin is valid
+
+/* autofire variables */
+static uint16_t autofire_counter = 0;
+static uint8_t autofire_state = 0;
 
 /******************************************** ************************************
 * Function Name : mTimer0ModSetup(UINT8 mode)
@@ -60,7 +65,21 @@ void mTimer0Interrupt( void ) __interrupt INT_NO_TMR0 // timer0 interrupt-servic
     }
     else
     {
-        /* joystick timing / autofire later */
+        if(autofire_active)
+        {
+            autofire_counter++;
+
+            if(autofire_counter >= 120)   // 50 ms
+            {
+                autofire_counter = 0;
+                autofire_state ^= 1;      // toggle fire
+            }
+
+            if(autofire_state)
+                JOY_FIRE = 0;             // active low
+            else
+                JOY_FIRE = 1;
+        }
     }
     mTimer0SetData(20000);  // set timer on 0.5 millisecond (48.000.000 hz / 20.000 = 2400 hz)
 }
@@ -69,14 +88,21 @@ void main()
 {
     SP = 0x80;
 
+    /* configure hardware */
+    hw_setup();
+
     /* system clock for USB */
     initClock();
 
     /* debug UART */
     initUART0(1000000, 1);
 
-    /* retro mouse pins + state */
-    rm_init();
+    if(USBHost_getControllerMode() == CTRL_MODE_MOUSE) {
+        /* retro mouse pins + state */
+        rm_init();
+    } else if(USBHost_getControllerMode() == CTRL_MODE_JOYSTICK) {
+        rj_init();
+    }
 
     /* load configuration */
     if(!config_load())

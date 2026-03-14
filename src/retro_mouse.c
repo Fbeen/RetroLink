@@ -21,18 +21,6 @@ static const __code uint8_t quad[4] =
 
 void rm_init(void)
 {
-    // port setup
-    PORT_CFG = 0b00101101;
-
-    /* first all outputs safe to HIGH */
-    P2 = 0xFF;
-
-    /* force bit5 LOW */
-    P2 &= ~(1 << 5);
-
-    /* and then configure them to output */
-    P2_DIR = 0b01111111;
-
     // reset movement accumulators
     mx = 0;
     my = 0;

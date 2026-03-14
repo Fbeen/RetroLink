@@ -82,11 +82,15 @@ typedef struct
 
 void initUSB_Host(void);
 
+static unsigned char initializeRootHubConnection(void);
+
 uint8_t checkRootHubConnections(void);
 
 void pollHIDdevice(void);
 
 void resetHubDevices(uint8_t hub);
+
+static void setControllerMode(controller_mode_t mode);
 
 controller_mode_t USBHost_getControllerMode(void);
 

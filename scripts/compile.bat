@@ -8,6 +8,7 @@ echo Compiling...
 
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\main.c -o build\main.rel
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\util.c -o build\util.rel
+toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\hardware.c -o build\hardware.rel
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\USBHost.c -o build\USBHost.rel
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\console.c -o build\console.rel
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\config.c -o build\config.rel
@@ -19,7 +20,7 @@ toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0
 
 echo Linking...
 
-toolchain\SDCC\bin\sdcc build\main.rel build\util.rel build\USBHost.rel build\console.rel build\config.rel build\hid_mouse.rel build\hid_joystick.rel build\retro_mouse.rel build\retro_joystick.rel build\controller_learn.rel -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -o build\CH559USB.ihx
+toolchain\SDCC\bin\sdcc build\main.rel build\util.rel build\hardware.rel build\USBHost.rel build\console.rel build\config.rel build\hid_mouse.rel build\hid_joystick.rel build\retro_mouse.rel build\retro_joystick.rel build\controller_learn.rel -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -o build\CH559USB.ihx
 
 echo Creating HEX...
 

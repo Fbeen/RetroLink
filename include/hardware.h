@@ -38,6 +38,6 @@ SBIT(JOY_LEFT,  PORT2, 2);  // DB9 pin 3 = LEFT
 SBIT(JOY_RIGHT, PORT2, 3);  // DB9 pin 4 = RIGHT
 SBIT(JOY_FIRE,  PORT2, 4);  // DB9 pin 6 = FIRE
 
-SBIT(NC,  PORT2, 5);  // DB9 pin 5 = NC
+void hw_setup(void);
 
 #endif
