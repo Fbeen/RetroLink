@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "controller_learn.h"
 
 /* 6 buttons per joystick */
 #define CTRL_MAP_COUNT     6
@@ -19,6 +18,32 @@
 #define CTRL_MAP_FIRE      4
 #define CTRL_MAP_AUTOFIRE  5
 
+/* input type */
+#define CTRL_INPUT_BUTTON  0
+#define CTRL_INPUT_AXIS    1
+/* input axis */
+#define AXIS_NEG 0
+#define AXIS_POS 1
+
+/* flag masks */
+#define CTRL_FLAG_TYPE 0x01
+#define CTRL_FLAG_AXIS 0x02
+
+/* helpers */
+#define CTRL_SET_AXIS(map, dir) ((map)->flags = CTRL_FLAG_TYPE | ((dir) << 1))
+#define CTRL_SET_BUTTON(map) ((map)->flags = CTRL_INPUT_BUTTON)
+#define CTRL_IS_AXIS(map) ((map)->flags & CTRL_FLAG_TYPE)
+#define CTRL_IS_BUTTON(map) (!((map)->flags & CTRL_FLAG_TYPE))
+#define CTRL_AXIS_DIR(map) (((map)->flags >> 1) & 1)
+
+typedef struct
+{
+    uint8_t offset;
+    uint8_t mask;
+    uint8_t threshold;
+    uint8_t flags; // bit0-1: input type, bit2: axis_dir
+} control_map_t;
+
 /*
  * WARNING:
  * The structure must have a even size in bytes
@@ -29,9 +54,9 @@ typedef struct
     uint8_t magic;
     uint8_t version;
     uint8_t mouse_speed;
+    uint8_t mouse_swap_mode;
     uint8_t mouse_swap_buttons;
     uint8_t joy_autofire_speed;
-    uint8_t reserved;
 
     control_map_t map[CTRL_MAP_COUNT]; // joystick button mapping
 } config_t;

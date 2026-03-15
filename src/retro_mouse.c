@@ -65,13 +65,36 @@ void rm_nextStep(void)
     uint8_t xs = quad[x_state];
     uint8_t ys = quad[y_state];
 
-    // ---- X pins ----
-    MX1 = (xs & 1) ? 1 : 0;
-    MX2 = (xs & 2) ? 1 : 0;
+    /*
+    On the atari:   On the Amiga:
+    pin 1 X2        pin 1 Y2
+    pin 2 X1        pin 2 X1
+    pin 3 Y1        pin 3 Y1
+    pin 4 Y2        pin 4 X2
 
-    // ---- Y pins ----
-    MY1 = (ys & 1) ? 1 : 0;
-    MY2 = (ys & 2) ? 1 : 0;
+    So X2 and Y2 must be swapped
+    */
+    if(g_config.mouse_swap_mode) {
+        /* Amiga mouse */
+
+        // ---- X pins ----
+        MX1 = (xs & 1) ? 1 : 0;
+        MY2 = (xs & 2) ? 1 : 0;
+
+        // ---- Y pins ----
+        MY1 = (ys & 1) ? 1 : 0;
+        MX2 = (ys & 2) ? 1 : 0;
+    } else {
+        /* ST mouse */
+
+        // ---- X pins ----
+        MX1 = (xs & 1) ? 1 : 0;
+        MX2 = (xs & 2) ? 1 : 0;
+
+        // ---- Y pins ----
+        MY1 = (ys & 1) ? 1 : 0;
+        MY2 = (ys & 2) ? 1 : 0;
+    }
 }
 
 void rm_event(mouse_report_t *m)

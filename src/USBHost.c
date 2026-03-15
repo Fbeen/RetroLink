@@ -2,7 +2,6 @@
 #include "CH559.h"
 #include "USBHost.h"
 #include "hid_mouse.h"
-#include "controller_learn.h"
 
 /* laatste HID report voor wizard */
 uint8_t __xdata g_last_report[LEARN_MAX_REPORT];
@@ -691,15 +690,7 @@ puts("\r\n");
     }
     else if (hidDevice.type == HID_TYPE_JOYSTICK)
     {
-        if(controller_learning_active)
-        {
-            controller_learn_process(RxBuffer, USB_RX_LEN);
-        }
-        else
-        {
-            // debug_print_report(g_last_report, g_last_report_len);
-            parseJoystickData(g_last_report);
-        }
+        parseJoystickData(g_last_report);
     }
 }
 

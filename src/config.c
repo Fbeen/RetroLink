@@ -8,7 +8,7 @@ __xdata config_t            g_config;
 
 #define CONFIG_FLASH_ADDR  0xF000
 #define CONFIG_MAGIC       0x52
-#define CONFIG_VERSION     1
+#define CONFIG_VERSION     2
 
 /* Macro that calculates the address of one joystick profile */
 #define PROFILE_ADDR(i) (PROFILE_FLASH_ADDR + (i * sizeof(joystick_profile_t)))
@@ -68,10 +68,9 @@ void config_default(void)
     g_config.version = CONFIG_VERSION;
 
     g_config.mouse_speed = 2;
+    g_config.mouse_swap_mode = 0;
     g_config.mouse_swap_buttons = 0;
-
     g_config.joy_autofire_speed = 0;
-    g_config.reserved = 0;
 
     /* leave joystick button mappings empty */
 }

@@ -11,6 +11,7 @@ static void next_learn_step(void);
 void console_start(void);
 void console_task(void);
 void swap_mouse_buttons(void);
+void swap_mouse_mode(void);
 static void show_autofire_menu(void);
 
 #endif

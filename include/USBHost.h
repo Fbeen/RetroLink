@@ -30,6 +30,12 @@
 #define HID_TYPE_MOUSE     1
 #define HID_TYPE_JOYSTICK  2
 
+/* ================= last HID report ================= */
+#define LEARN_MAX_REPORT 8
+
+extern uint8_t __xdata g_last_report[LEARN_MAX_REPORT];
+extern uint8_t g_last_report_len;
+
 /* ================= Vendor product id ================= */
 
 typedef struct

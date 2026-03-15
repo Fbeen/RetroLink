@@ -1,16 +1,9 @@
-/*
-static const char __code header[] =
-"  ____      _             _     _       _\r\n"
-" |  _ \\ ___| |_ _ __ ___ | |   (_)_ __ | | __\r\n"
-" | |_) / _ \\ __| '__/ _ \\| |   | | '_ \\| |/ /\r\n"
-" |  _ <  __/ |_| | | (_) | |___| | | | |   <\r\n"
-" |_| \\_\\___|\\__|_|  \\___/|_____|_|_| |_|_|\\_\\\r\n";
-*/
 #include <stdio.h>
 #include "CH559.h"
 #include "util.h"
 #include "console.h"
 #include "config.h"
+#include "USBHost.h"
 
 /* --------------------------------------------------
    Menu state
@@ -49,6 +42,12 @@ static uint8_t learn_wait_release = 0;
 static const char __code stripe[] =
 "--------------------------------";
 
+static const char __code header[] =
+"  ____      _             _     _       _\r\n"
+" |  _ \\ ___| |_ _ __ ___ | |   (_)_ __ | | __\r\n"
+" | |_) / _ \\ __| '__/ _ \\| |   | | '_ \\| |/ /\r\n"
+" |  _ <  __/ |_| | | (_) | |___| | | | |   <\r\n"
+" |_| \\_\\___|\\__|_|  \\___/|_____|_|_| |_|_|\\_\\\r\n";
 static const char __code title1[] = "RetroLink v1.02";
 static const char __code title2[] = "USB Input Adapter";
 static const char __code title3[] = "ST / Amiga / C64";
@@ -58,9 +57,10 @@ static const char __code github_url[] =
 
 static const char __code main_menu[] =
 "1. Set Mouse Speed\r\n"
-"2. Swap Mouse Buttons\r\n"
-"3. Learn Controller\r\n"
-"4. Autofire Frequency\r\n";
+"2. Emulate ST or Amiga mouse\r\n"
+"3. Swap Mouse Buttons\r\n"
+"4. Learn Controller\r\n"
+"5. Autofire Frequency\r\n";
 
 static const char __code speed_menu[] =
 "1 - Very Slow\r\n"
@@ -93,6 +93,12 @@ static const char __code txt_mb_normal[] =
 
 static const char __code txt_mb_swapped[] =
 "Mouse buttons swapped";
+
+static const char __code txt_st_mode[] =
+"Emulate Atari ST mouse";
+
+static const char __code txt_amiga_mode[] =
+"Emulate Amiga mouse";
 
 static const char __code learn_prompts[] =
 "Push UP\0"
@@ -256,6 +262,7 @@ static uint8_t build_mapping(control_map_t *map)
 
 static void show_header(void)
 {
+    puts(header);
     puts(title1);
     puts(title2);
     puts(title3);
@@ -406,10 +413,12 @@ void console_task(void)
             if(c == '1')
                 show_mouse_speed_menu();
             else if(c == '2')
-                swap_mouse_buttons();
+                swap_mouse_mode();
             else if(c == '3')
-                start_learning();
+                swap_mouse_buttons();
             else if(c == '4')
+                start_learning();
+            else if(c == '5')
                 show_autofire_menu();
 
             break;
@@ -466,6 +475,23 @@ void swap_mouse_buttons(void)
         puts(txt_mb_swapped);
     } else {
         puts(txt_mb_normal);
+    }
+    puts("");
+
+    show_main_menu();
+}
+
+void swap_mouse_mode(void)
+{
+    // swap buttons
+    g_config.mouse_swap_mode ^= 1;
+    config_save();
+
+    console_clear();
+    if(g_config.mouse_swap_mode) {
+        puts(txt_amiga_mode);
+    } else {
+        puts(txt_st_mode);
     }
     puts("");
 
