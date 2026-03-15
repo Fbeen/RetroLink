@@ -5,6 +5,20 @@
 #include <stdbool.h>
 #include "controller_learn.h"
 
+/* 6 buttons per joystick */
+#define CTRL_MAP_COUNT     6
+
+/* max joysticks mappings in FLASH */
+#define MAX_JOYSTICK_PROFILES 8
+
+/* array index of each button */
+#define CTRL_MAP_UP        0
+#define CTRL_MAP_DOWN      1
+#define CTRL_MAP_LEFT      2
+#define CTRL_MAP_RIGHT     3
+#define CTRL_MAP_FIRE      4
+#define CTRL_MAP_AUTOFIRE  5
+
 /*
  * WARNING:
  * The structure must have a even size in bytes
@@ -12,28 +26,17 @@
 */
 typedef struct
 {
-    uint16_t magic;
-    uint16_t version;
-
+    uint8_t magic;
+    uint8_t version;
     uint8_t mouse_speed;
-
-    uint8_t mouse_left_button;
-    uint8_t mouse_right_button;
-
+    uint8_t mouse_swap_buttons;
     uint8_t joy_autofire_speed;
+    uint8_t reserved;
 
-    /* joystick learning mappings */
-
-    control_map_t joy_up;
-    control_map_t joy_down;
-    control_map_t joy_left;
-    control_map_t joy_right;
-    control_map_t joy_fire;
-    control_map_t joy_autofire;
-
+    control_map_t map[CTRL_MAP_COUNT]; // joystick button mapping
 } config_t;
 
-extern config_t g_config;
+extern config_t             g_config;
 
 void config_default(void);
 bool config_load(void);

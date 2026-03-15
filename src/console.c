@@ -20,7 +20,8 @@ typedef enum
 {
     MENU_MAIN,
     MENU_MOUSE_SPEED,
-    MENU_JOY_LEARN
+    MENU_JOY_LEARN,
+    MENU_AUTOFIRE
 } console_state_t;
 
 static console_state_t __xdata menu_state = MENU_MAIN;
@@ -57,9 +58,9 @@ static const char __code github_url[] =
 
 static const char __code main_menu[] =
 "1. Set Mouse Speed\r\n"
-"2. Map Mouse Buttons\r\n"
+"2. Swap Mouse Buttons\r\n"
 "3. Learn Controller\r\n"
-"4. Autofire Settings\r\n";
+"4. Autofire Frequency\r\n";
 
 static const char __code speed_menu[] =
 "1 - Very Slow\r\n"
@@ -87,6 +88,12 @@ static const char __code txt_idle_scan[] =
 static const char __code txt_done[] =
 "Controller configuration complete";
 
+static const char __code txt_mb_normal[] =
+"Mouse buttons normal";
+
+static const char __code txt_mb_swapped[] =
+"Mouse buttons swapped";
+
 static const char __code learn_prompts[] =
 "Push UP\0"
 "Push DOWN\0"
@@ -94,6 +101,20 @@ static const char __code learn_prompts[] =
 "Push RIGHT\0"
 "Press FIRE\0"
 "Press AUTOFIRE\0";
+
+static const char __code txt_autofire[] =
+"Autofire Frequency";
+
+static const char __code txt_autofire_menu[] =
+"1 - Autofire 8 Hz\r\n"
+"2 - Autofire 9 Hz\r\n"
+"3 - Autofire 10 Hz\r\n"
+"4 - Autofire 11 Hz\r\n"
+"5 - Autofire 12 Hz\r\n"
+"0 - Back\r\n";
+
+static const char __code txt_autofire_updated[] =
+"Autofire frequency updated";
 
 /* --------------------------------------------------
    Helpers
@@ -208,8 +229,7 @@ static uint8_t build_mapping(control_map_t *map)
 
     if(v < idle_mid)
     {
-        map->type = CTRL_INPUT_AXIS;
-        map->axis_dir = AXIS_NEG;
+        CTRL_SET_AXIS(map, AXIS_NEG);
         map->threshold = idle_mid;
         map->mask = 0;
         return 1;
@@ -217,17 +237,15 @@ static uint8_t build_mapping(control_map_t *map)
 
     if(v > idle_mid)
     {
-        map->type = CTRL_INPUT_AXIS;
-        map->axis_dir = AXIS_POS;
+        CTRL_SET_AXIS(map, AXIS_POS);
         map->threshold = idle_mid;
         map->mask = 0;
         return 1;
     }
 
-    map->type = CTRL_INPUT_BUTTON;
+    CTRL_SET_BUTTON(map);
     map->threshold = v;
     map->mask = 0;
-    map->axis_dir = 0;
 
     return 1;
 }
@@ -359,16 +377,7 @@ void console_task(void)
 
                 if(build_mapping(&map))
                 {
-                    switch(learn_step)
-                    {
-                        case 0: g_config.joy_up = map; break;
-                        case 1: g_config.joy_down = map; break;
-                        case 2: g_config.joy_left = map; break;
-                        case 3: g_config.joy_right = map; break;
-                        case 4: g_config.joy_fire = map; break;
-                        case 5: g_config.joy_autofire = map; break;
-                    }
-
+                    g_config.map[learn_step] = map;
                     learn_wait_release = 1;
                 }
             }
@@ -397,11 +406,11 @@ void console_task(void)
             if(c == '1')
                 show_mouse_speed_menu();
             else if(c == '2')
-                puts("Map Mouse Buttons (TODO)");
+                swap_mouse_buttons();
             else if(c == '3')
                 start_learning();
             else if(c == '4')
-                puts("Autofire Settings (TODO)");
+                show_autofire_menu();
 
             break;
 
@@ -425,5 +434,52 @@ void console_task(void)
 
         case MENU_JOY_LEARN:
             break;
+
+        case MENU_AUTOFIRE:
+
+            if(c >= '1' && c <= '5')
+            {
+                g_config.joy_autofire_speed = c - '0';
+                config_save();
+
+                console_clear();
+                puts(txt_autofire_updated);
+                show_main_menu();
+            }
+            else if(c == '0')
+            {
+                show_main_menu();
+            }
+
+            break;
     }
+}
+
+void swap_mouse_buttons(void)
+{
+    // swap buttons
+    g_config.mouse_swap_buttons ^= 1;
+    config_save();
+
+    console_clear();
+    if(g_config.mouse_swap_buttons) {
+        puts(txt_mb_swapped);
+    } else {
+        puts(txt_mb_normal);
+    }
+    puts("");
+
+    show_main_menu();
+}
+
+static void show_autofire_menu(void)
+{
+    console_clear();
+
+    puts(txt_autofire);
+    puts(stripe);
+
+    puts(txt_autofire_menu);
+
+    menu_state = MENU_AUTOFIRE;
 }

@@ -26,6 +26,15 @@ typedef unsigned char  __data             UINT8D;
 /* autofire variables */
 static uint16_t autofire_counter = 0;
 static uint8_t autofire_state = 0;
+static const uint16_t __code autofire_ticks[] =
+{
+    0,    // index 0 unused
+    150,  // 1 = 8 Hz
+    133,  // 2 = 9 Hz
+    120,  // 3 = 10 Hz
+    109,  // 4 = 11 Hz
+    100   // 5 = 12 Hz
+};
 
 /******************************************** ************************************
 * Function Name : mTimer0ModSetup(UINT8 mode)
@@ -69,7 +78,7 @@ void mTimer0Interrupt( void ) __interrupt INT_NO_TMR0 // timer0 interrupt-servic
         {
             autofire_counter++;
 
-            if(autofire_counter >= 120)   // 50 ms
+            if(autofire_counter >= autofire_ticks[g_config.joy_autofire_speed])   // 50 ms
             {
                 autofire_counter = 0;
                 autofire_state ^= 1;      // toggle fire

@@ -103,16 +103,12 @@ uint8_t controller_learn_analyze(control_map_t *map)
         if(best_delta > 20 || best_delta < -20)
         {
             map->offset = best_index;
-            map->type = CTRL_INPUT_AXIS;
+
+            CTRL_SET_AXIS(map, (best_delta < 0) ? AXIS_NEG : AXIS_POS);
 
             /* center = idle value */
             map->threshold = learn.idle[best_index];
             map->mask = 0;
-
-            if(best_delta < 0)
-                map->axis_dir = AXIS_NEG;
-            else
-                map->axis_dir = AXIS_POS;
 
             return 1;
         }
@@ -137,7 +133,7 @@ uint8_t controller_learn_analyze(control_map_t *map)
         if(diff && !(diff & (diff - 1)))
         {
             map->offset = i;
-            map->type = CTRL_INPUT_BUTTON;
+            CTRL_SET_BUTTON(map);
             map->mask = diff;
             map->threshold = 0;
 

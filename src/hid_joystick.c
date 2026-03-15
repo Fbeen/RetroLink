@@ -7,7 +7,7 @@ uint8_t control_active(control_map_t *map, uint8_t *report)
 {
     uint8_t v = report[map->offset];
 
-    if(map->type == CTRL_INPUT_BUTTON)
+    if(CTRL_IS_BUTTON(map))
     {
         /* mask==0 => exacte byte compare */
         if(map->mask == 0)
@@ -18,7 +18,7 @@ uint8_t control_active(control_map_t *map, uint8_t *report)
     }
 
     /* axis */
-    if(map->axis_dir == AXIS_NEG)
+    if(CTRL_AXIS_DIR(map) == AXIS_NEG)
     {
         if(v < map->threshold)
             return 1;
@@ -36,12 +36,12 @@ void parseJoystickData(uint8_t *report)
 {
     joystick_report_t j;
 
-    j.up       = control_active(&g_config.joy_up, report);
-    j.down     = control_active(&g_config.joy_down, report);
-    j.left     = control_active(&g_config.joy_left, report);
-    j.right    = control_active(&g_config.joy_right, report);
-    j.fire     = control_active(&g_config.joy_fire, report);
-    j.autofire = control_active(&g_config.joy_autofire, report);
+    j.up       = control_active(&g_config.map[CTRL_MAP_UP], report);
+    j.down     = control_active(&g_config.map[CTRL_MAP_DOWN], report);
+    j.left     = control_active(&g_config.map[CTRL_MAP_LEFT], report);
+    j.right    = control_active(&g_config.map[CTRL_MAP_RIGHT], report);
+    j.fire     = control_active(&g_config.map[CTRL_MAP_FIRE], report);
+    j.autofire = control_active(&g_config.map[CTRL_MAP_AUTOFIRE], report);
 
     rj_event(&j);
 }

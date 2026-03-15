@@ -35,10 +35,10 @@ void pinMode(unsigned char port, unsigned char pin, unsigned char mode);
 
 typedef void(* __data FunctionReference)();
 extern FunctionReference runBootloader;
-
+/*
 void print_u8(uint8_t v);
 void print_str(const char *s);
 void print_hex8(uint8_t v);
 void debug_print_report(uint8_t *r, uint8_t len);
-
+*/
 #endif

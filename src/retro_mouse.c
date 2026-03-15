@@ -1,5 +1,6 @@
 #include "retro_mouse.h"
 #include "hardware.h"
+#include "config.h"
 
 volatile uint8_t mouse_buttons = 0;
 
@@ -60,8 +61,6 @@ void rm_nextStep(void)
         y_state = (y_state - 1) & 3;
         my++;
     }
-// #include <stdio.h>
-// printf("mx=%d my=%d\r\n", mx, my);
 
     uint8_t xs = quad[x_state];
     uint8_t ys = quad[y_state];
@@ -82,7 +81,16 @@ void rm_event(mouse_report_t *m)
 
     mouse_buttons = m->buttons;
 
-    /* active low buttons */
-    MBTN_LEFT  = !(mouse_buttons & 1);
-    MBTN_RIGHT = !(mouse_buttons & 2);
+    uint8_t left  = mouse_buttons & 1;
+    uint8_t right = mouse_buttons & 2;
+
+    if(g_config.mouse_swap_buttons)
+    {
+        uint8_t t = left;
+        left = right;
+        right = t;
+    }
+
+    MBTN_LEFT  = !left;
+    MBTN_RIGHT = !right;
 }

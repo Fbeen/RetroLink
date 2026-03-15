@@ -5,23 +5,30 @@
 
 #define LEARN_MAX_REPORT 16
 
-typedef enum
-{
-    CTRL_INPUT_NONE = 0,
-    CTRL_INPUT_BUTTON,
-    CTRL_INPUT_AXIS
-} ctrl_input_type_t;
-
+/* input type */
+#define CTRL_INPUT_BUTTON  0
+#define CTRL_INPUT_AXIS    1
+/* input axis */
 #define AXIS_NEG 0
 #define AXIS_POS 1
+
+/* flag masks */
+#define CTRL_FLAG_TYPE 0x01
+#define CTRL_FLAG_AXIS 0x02
+
+/* helpers */
+#define CTRL_SET_AXIS(map, dir) ((map)->flags = CTRL_FLAG_TYPE | ((dir) << 1))
+#define CTRL_SET_BUTTON(map) ((map)->flags = CTRL_INPUT_BUTTON)
+#define CTRL_IS_AXIS(map) ((map)->flags & CTRL_FLAG_TYPE)
+#define CTRL_IS_BUTTON(map) (!((map)->flags & CTRL_FLAG_TYPE))
+#define CTRL_AXIS_DIR(map) (((map)->flags >> 1) & 1)
 
 typedef struct
 {
     uint8_t offset;
     uint8_t mask;
     uint8_t threshold;
-    ctrl_input_type_t type;
-    uint8_t axis_dir;
+    uint8_t flags; // bit0-1: input type, bit2: axis_dir
 } control_map_t;
 
 /* learning state flags */

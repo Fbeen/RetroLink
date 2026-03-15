@@ -260,7 +260,7 @@ void delay(unsigned short n)
 		--n;
 	}
 }
-
+/*
 void print_u8(uint8_t v)
 {
     uint8_t hundreds = v / 100;
@@ -308,3 +308,4 @@ void debug_print_report(uint8_t *r, uint8_t len)
     UART0Send('\r');
     UART0Send('\n');
 }
+*/
