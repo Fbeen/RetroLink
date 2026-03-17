@@ -38,10 +38,7 @@ Information about building the hardware can be found here:
 /hardware/README.md
 ```
 
-You can either:
-
-- build the PCB yourself  
-- or order a **fully assembled board from JLCPCB**
+You can order a **almost fully assembled board from JLCPCB**
 
 ---
 
@@ -71,7 +68,7 @@ Common tools:
 Typical settings:
 
 ```
-115200 baud
+2000000 baud
 8 data bits
 no parity
 1 stop bit
@@ -233,9 +230,7 @@ More information can be found here:
 
 # Repository
 
-Project repository:
-
-https://github.com/Fbeen/RetroLink
+Project repository: https://github.com/Fbeen/RetroLink
 
 ---
 

@@ -19,15 +19,11 @@ The free version has a few limitations, but for small hobby projects like this i
 
 # Ordering the PCB at JLCPCB
 
-If you don't want to build the PCB manually, you can simply order it **fully assembled** from JLCPCB.
+You can simply order it **almost fully assembled** from JLCPCB.
 
 To make this easy, the repository already contains the required manufacturing files.
 
-You will find them here:
-
-```
-hardware/jlcpcb.com/
-```
+You will find them here: `hardware/jlcpcb.com/`
 
 Inside that folder you will find:
 
@@ -39,18 +35,13 @@ Inside that folder you will find:
 
 ## Step-by-step ordering
 
-1. Go to  
-https://jlcpcb.com
+1. Go to https://jlcpcb.com
 
 2. Log in or create an account.
 
 3. Press **Order Now**
 
-4. Upload the file:
-
-```
-CAMOutput.zip
-```
+4. Upload the file: `CAMOutput.zip`
 
 5. Choose your preferred **PCB color**
 
