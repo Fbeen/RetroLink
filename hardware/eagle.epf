@@ -271,7 +271,6 @@ UsedLibrary="C:/Users/frank/Documents/EAGLE/projects/FlashFloppy/BSS138.lbr"
 UsedLibrary="C:/Users/frank/Documents/EAGLE/projects/FlashFloppy/lm1117_11.lbr"
 UsedLibrary="CH559L.lbr"
 UsedLibrary="C:/Users/frank/Documents/EAGLE/projects/CH559-single/TXS0108EPWR.lbr"
-UsedLibrary="SN74LVC8T245.lbr"
 
 [Win_1]
 Type="Control Panel"

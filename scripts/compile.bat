@@ -30,7 +30,7 @@ echo Flashing...
 
 tools\chflasher.exe build\CH559USB.bin
 
-# rmdir /s /q build
+rmdir /s /q build
 cd scripts
 
 echo Done.
