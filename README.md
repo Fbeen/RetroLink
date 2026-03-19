@@ -1,5 +1,7 @@
 # RetroLink
 
+![Retro computer](images/header.png)
+
 RetroLink is a small **USB input adapter for retro computers**.
 
 It allows modern **USB mice and USB joysticks** to be used on classic systems such as:
@@ -137,11 +139,6 @@ Classic mice for systems like the Atari ST and Amiga use **quadrature encoding**
 Instead of sending absolute movement values, the mouse generates two signals per axis:
 
 ![quadrature encoding](images/quadrature_encoder_signals.png)
-
-```
-X1 / X2
-Y1 / Y2
-```
 
 These signals form a quadrature pair which indicates both **direction** and **movement speed**.
 RetroLink converts USB mouse movement into this quadrature pattern in software.
