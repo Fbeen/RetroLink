@@ -136,7 +136,7 @@ The firmware then interprets this data and converts it to signals suitable for t
 Classic mice for systems like the Atari ST and Amiga use **quadrature encoding**.
 Instead of sending absolute movement values, the mouse generates two signals per axis:
 
-![quadrature encoding](../images/quadrature_encoder_signals.png)
+![quadrature encoding](images/quadrature_encoder_signals.png)
 
 ```
 X1 / X2
