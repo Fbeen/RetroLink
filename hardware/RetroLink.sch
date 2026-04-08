@@ -11820,7 +11820,7 @@ Source: www.kingbright.com</description>
 <net name="RB" class="0">
 <segment>
 <wire x1="119.38" y1="-27.94" x2="119.38" y2="-30.48" width="0.1524" layer="91"/>
-<wire x1="119.38" y1="-30.48" x2="99.06" y2="-30.48" width="0.1524" layer="91" grouprefs="DB9"/>
+<wire x1="119.38" y1="-30.48" x2="99.06" y2="-30.48" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="-30.48" x2="99.06" y2="-5.08" width="0.1524" layer="91"/>
 <wire x1="99.06" y1="-5.08" x2="68.58" y2="-5.08" width="0.1524" layer="91"/>
 <pinref part="X3" gate="G$1" pin="9"/>
@@ -11876,7 +11876,7 @@ Source: www.kingbright.com</description>
 <net name="LB" class="0">
 <segment>
 <wire x1="104.14" y1="35.56" x2="104.14" y2="-35.56" width="0.1524" layer="91"/>
-<wire x1="104.14" y1="-35.56" x2="111.76" y2="-35.56" width="0.1524" layer="91" grouprefs="DB9"/>
+<wire x1="104.14" y1="-35.56" x2="111.76" y2="-35.56" width="0.1524" layer="91"/>
 <wire x1="111.76" y1="-35.56" x2="111.76" y2="-27.94" width="0.1524" layer="91"/>
 <pinref part="X3" gate="G$1" pin="6"/>
 <label x="105.664" y="15.24" size="1.778" layer="95" rot="R180"/>
@@ -11905,14 +11905,14 @@ Source: www.kingbright.com</description>
 </net>
 <net name="LED" class="0">
 <segment>
-<pinref part="U1" gate="G$1" pin="P5.4/HM/ALE/XB"/>
-<wire x1="99.06" y1="45.72" x2="119.38" y2="45.72" width="0.1524" layer="91"/>
-<label x="119.38" y="45.72" size="1.778" layer="95" xref="yes"/>
-</segment>
-<segment>
 <pinref part="R1" gate="G$1" pin="2"/>
 <wire x1="182.88" y1="124.46" x2="177.8" y2="124.46" width="0.1524" layer="91" grouprefs="BUTTON_AND_LED"/>
 <label x="177.8" y="124.46" size="1.27" layer="95" rot="R180" xref="yes" grouprefs="BUTTON_AND_LED"/>
+</segment>
+<segment>
+<pinref part="U1" gate="G$1" pin="P2.7/TXD1/DA7/A15"/>
+<wire x1="99.06" y1="40.64" x2="116.84" y2="40.64" width="0.1524" layer="91"/>
+<label x="116.84" y="40.64" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="5V_INT" class="0">
