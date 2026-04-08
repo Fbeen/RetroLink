@@ -4,18 +4,11 @@
 #include "console.h"
 #include "config.h"
 #include "USBHost.h"
+#include "led.h"
 
 /* --------------------------------------------------
    Menu state
 -------------------------------------------------- */
-
-typedef enum
-{
-    MENU_MAIN,
-    MENU_MOUSE_SPEED,
-    MENU_JOY_LEARN,
-    MENU_AUTOFIRE
-} console_state_t;
 
 static console_state_t __xdata menu_state = MENU_MAIN;
 
@@ -56,10 +49,10 @@ static const char __code github_url[] =
 "github.com/Fbeen/RetroLink";
 
 static const char __code main_menu[] =
-"1. Set Mouse Speed\r\n"
+"1. Learn Controller\r\n"
 "2. Emulate ST or Amiga mouse\r\n"
 "3. Swap Mouse Buttons\r\n"
-"4. Learn Controller\r\n"
+"4. Set Mouse Speed\r\n"
 "5. Autofire Frequency\r\n";
 
 static const char __code speed_menu[] =
@@ -271,7 +264,7 @@ static void show_header(void)
     puts("");
 }
 
-static void show_main_menu(void)
+void show_main_menu(void)
 {
     show_header();
     puts("Main Menu");
@@ -301,7 +294,7 @@ static void show_mouse_speed_menu(void)
    Learning wizard
 -------------------------------------------------- */
 
-static void start_learning(void)
+void start_learning(void)
 {
     learn_step = 0;
     learn_wait_release = 0;
@@ -323,6 +316,7 @@ static void next_learn_step(void)
     {
         puts("");
         puts(txt_done);
+        led_activate(2000, 2000);
 
         config_save();
 
@@ -333,6 +327,7 @@ static void next_learn_step(void)
 
     puts("");
     puts(get_prompt(learn_step));
+    led_activate(200, 600);
 }
 
 /* --------------------------------------------------
@@ -348,6 +343,19 @@ void console_task(void)
 {
     char c;
 
+    /* PCB button abort (alleen tijdens learning) */
+    if(menu_state == MENU_JOY_LEARN)
+    {
+        if(!(P4_IN & (1 << 6)))   // pressed
+        {
+            abort_learning();
+
+            /* wacht tot losgelaten (simpel debounce) */
+            while(!(P4_IN & (1 << 6)));
+
+            return;
+        }
+    }
     /* learner */
 
     if(menu_state == MENU_JOY_LEARN)
@@ -406,18 +414,25 @@ void console_task(void)
 
     c = UART0Receive();
 
+    /* ESC = abort learning */
+    if(c == 27 && menu_state == MENU_JOY_LEARN)
+    {
+        abort_learning();
+        return;
+    }
+    
     switch(menu_state)
     {
         case MENU_MAIN:
 
             if(c == '1')
-                show_mouse_speed_menu();
+                start_learning();
             else if(c == '2')
                 swap_mouse_mode();
             else if(c == '3')
                 swap_mouse_buttons();
             else if(c == '4')
-                start_learning();
+                show_mouse_speed_menu();
             else if(c == '5')
                 show_autofire_menu();
 
@@ -469,12 +484,16 @@ void swap_mouse_buttons(void)
     // swap buttons
     g_config.mouse_swap_buttons ^= 1;
     config_save();
-
+    
     console_clear();
     if(g_config.mouse_swap_buttons) {
         puts(txt_mb_swapped);
+        delay(1000);
+        led_activate(200, 600);
     } else {
         puts(txt_mb_normal);
+        delay(1000);
+        led_activate(200, 200);
     }
     puts("");
 
@@ -490,8 +509,12 @@ void swap_mouse_mode(void)
     console_clear();
     if(g_config.mouse_swap_mode) {
         puts(txt_amiga_mode);
+        delay(1000);
+        led_activate(200, 600);
     } else {
         puts(txt_st_mode);
+        delay(1000);
+        led_activate(200, 200);
     }
     puts("");
 
@@ -508,4 +531,42 @@ static void show_autofire_menu(void)
     puts(txt_autofire_menu);
 
     menu_state = MENU_AUTOFIRE;
+}
+
+void inc_mouse_speed()
+{
+    g_config.mouse_speed++;
+
+    if( g_config.mouse_speed > 5)
+         g_config.mouse_speed = 1;
+
+    config_save();
+    delay(1000);
+    led_activate(200, 400 * g_config.mouse_speed);
+}
+
+void inc_autofire_speed()
+{
+    g_config.joy_autofire_speed++;
+
+    if( g_config.joy_autofire_speed > 5)
+         g_config.joy_autofire_speed = 1;
+
+    config_save();
+    delay(1000);
+    led_activate(200, 400 * g_config.joy_autofire_speed);
+}
+
+static void abort_learning(void)
+{
+    puts("");
+    puts("Learning aborted");
+
+    console_clear();
+    show_main_menu();
+}
+
+console_state_t console_get_state(void)
+{
+    return menu_state;
 }

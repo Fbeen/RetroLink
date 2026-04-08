@@ -1,3 +1,4 @@
+
 # RetroLink
 
 ![Retro computer](images/header.png)
@@ -10,259 +11,265 @@ It allows modern **USB mice and USB joysticks** to be used on classic systems su
 - Commodore Amiga
 - Commodore 64
 
-The device translates USB input into the signals expected by the original hardware.  
-The goal of this project was to create a **simple, flexible and hackable adapter** that hobbyists can build themselves.
+---
 
-This project started mostly as a fun experiment — and like many hobby projects it slowly grew into something more useful.
+## ? Table of Contents
+
+- [Features](#features)
+- [Button Control & LED Feedback](#button-control--led-feedback)
+- [Why This Project Exists](#why-this-project-exists)
+- [How RetroLink Works](#how-retrolink-works)
+  - [Microcontroller](#microcontroller-ch559l)
+  - [USB Host Operation](#usb-host-operation)
+  - [Mouse Emulation](#mouse-emulation)
+  - [Joystick Mapping](#joystick-mapping)
+  - [Open Collector Outputs](#open-collector-outputs)
+  - [Serial Interface](#serial-configuration-interface)
+- [Hardware](#hardware)
+- [Connecting RetroLink](#connecting-retrolink)
+- [Configuration Console](#opening-the-configuration-console)
+- [Menu Options](#main-menu)
+- [Firmware](#firmware)
+- [Disclaimer](#disclaimer)
 
 ---
 
-# Features
+## Features
 
 - USB mouse support
 - USB joystick support
 - Works with **Atari ST**, **Amiga**, and **C64**
 - Configurable **mouse speed**
 - Switch between **ST mouse** and **Amiga mouse**
-- **Swap mouse buttons**
+- **Swap** left & right **mouse buttons**
 - Configurable **autofire frequency**
-- **Joystick learning wizard** for mapping any USB controller
+- **Joystick learning wizard**
 - Configuration stored in flash memory
-- Simple **terminal based configuration interface**
+- Terminal-based configuration
+- Configurable with onboard button & LED
+
+---
+
+# Button Control & LED Feedback
+
+## Button Overview
+
+The RetroLink uses **one button**:
+
+- **Short press** ? Show menu on UART  
+- **Long press** ? Select function via LED flashes  
+
+---
+
+## Short Press
+
+**< 1 second**
+
+- Prints the **Main Menu**
+- Useful when opening a serial terminal  
+
+---
+
+## Long Press (Selection)
+
+| Flashes | Function |
+|--------|--------|
+| 1 | Controller Learning |
+| 2 | Swap Mouse Mode |
+| 3 | Swap Mouse Buttons |
+| 4 | Increase Mouse Speed |
+| 5 | Increase Autofire Speed |
+
+? Release at desired flash count
+
+---
+
+## Controller Learning (1 flash)
+
+Press a key on your controller in the order below to configure it:
+
+1. UP  
+2. DOWN  
+3. LEFT  
+4. RIGHT  
+5. FIRE  
+6. AUTOFIRE  
+
+### Feedback
+
+- Each step ? **2 short flashes**
+- Final step ? LED ON for **2 seconds**
+- Config is saved automatically
+
+### To abort the learning wizzard:
+
+- Press **PCB button**
+- Press **ESC** in terminal
+
+---
+
+## Mouse Mode (2 flashes)
+
+- 1 flash ? Atari ST  
+- 2 flashes ? Amiga  
+
+---
+
+## Mouse Buttons (3 flashes)
+
+- 1 flash ? Normal  
+- 2 flashes ? Swapped  
+
+---
+
+## Mouse Speed (4 flashes)
+
+Cycles 1 ? 5 ? 1
+
+| Flashes | Speed |
+|--------|------|
+| 1 | Very Slow |
+| 2 | Slow |
+| 3 | Normal |
+| 4 | Fast |
+| 5 | Turbo |
+
+---
+
+## Autofire Speed (5 flashes)
+
+| Flashes | Frequency |
+|--------|----------|
+| 1 | 8 Hz |
+| 2 | 9 Hz |
+| 3 | 10 Hz |
+| 4 | 11 Hz |
+| 5 | 12 Hz |
+
+---
+
+## Notes
+
+- Settings are stored in flash
+- Persist after reboot
+- LED = primary UI without UART
 
 ---
 
 # Why This Project Exists
 
-Many classic computers such as the Atari ST, Amiga and Commodore 64 use the well known **DB9 joystick and mouse connectors**.  
-Unfortunately, the original peripherals that used these connectors are becoming harder to find and often suffer from age-related problems.
+Classic hardware is aging:
 
-One very common issue is **cable breakage**. After decades of use the cables inside original mice and joysticks tend to become brittle and eventually fail. Repairing them is sometimes possible, but often not worth the effort.
+- cables break  
+- hardware wears out  
+- ergonomics are outdated  
 
-Another problem is that many of the original joysticks simply **aren't very comfortable by modern standards**. Modern USB controllers are usually much more ergonomic and precise.
-
-RetroLink started as a small experiment to solve these problems.
-
-The original goal was simply to make it possible to use **modern USB mice and controllers** on classic machines without modifying the computer itself.
-
-During development a few additional ideas were added:
-
-- A **controller learning wizard** so that almost any USB HID joystick can be mapped automatically.
-- Adjustable **mouse speed**, since USB mice can behave very differently from the original hardware.
-- A configurable **autofire function**, which can be very useful for certain games.
-- The ability to switch between **Atari ST and Amiga mouse modes**.
-
-What started as a small weekend experiment slowly grew into a more complete adapter that turned out to be quite useful in everyday retro computing.
-
-RetroLink is still very much a **hobby project**, and the design intentionally remains simple so that other people can build, modify, and improve it.
+RetroLink solves this by allowing **modern USB devices** to be used.
 
 ---
 
 # How RetroLink Works
 
-RetroLink acts as a small translation layer between modern USB devices and the electrical interface expected by classic computers.
+RetroLink translates USB input into **DB9 signals**.
 
-At one side a **USB mouse or joystick** is connected.  
-On the other side the adapter generates the signals that the retro computer expects on its **DB9 port**.
+Internally:
 
-Internally the firmware reads USB HID reports and converts them into:
-
-- **quadrature signals** for mouse movement
-- simple **switch-based joystick signals** (one line per button)
-- optional **autofire pulses**
-
-The configuration of the device can be changed through a **serial terminal interface**.
+- USB HID reports are read
+- Converted to:
+  - quadrature signals (mouse)
+  - digital lines (joystick)
+  - autofire pulses
 
 ---
 
 ## Microcontroller: CH559L
 
-The heart of the system is the **CH559L** microcontroller.
+I chose the CH559 because it operates directly on the 5 volts from the retro computer and therefore does not require a power regulator. Furthermore, the CH559 microcontroller has a built-in USB transceiver and USB controller. The DB9 interfaces are electrically very simple, but they rely on a specific signaling method: open-collector (or open-drain) logic.
 
-This chip was selected mainly because it integrates a surprising amount of functionality in a very small and inexpensive package:
+Key features for the CH559:
 
-One particularly useful property is that the **CH559 can run directly from a 5 V supply**.  
-This makes it very convenient for retro hardware projects where 5 V is usually the only available voltage.
+- 8051-based MCU
+- USB Host + Device
+- 5V operation and low current 3.3v output
+- Built-in flash storage
 
-Other reasons to select this MCU:
-- It has a USB **Host** and device controller
-- It has internal Flash memory that has a reserved area for data storage
-- It has a internal 3.3 V regulator which even has an output that you can use for light tasks as e.g. pullup resistors
-- It offers firmware flashing through a USB-A to USB-A cable.
+### RAM Limitation
 
+The disadvantage of the CH559 is the small RAM size. That's why strings are stored in flash using `__code`, for example:
 
-### Limitations of the CH559
-
-The CH559 is a very capable chip, but it also has a few limitations.
-
-The most important one is the **very limited RAM size**.
-
-This means RAM must be used carefully.  
-For example, almost all constant text used by the console interface is stored in **Flash memory** instead of RAM.
-
-In the firmware this is done using the `__code` memory qualifier:
-
-```
-static const char __code title1[] = "RetroLink v1.02";
-```
-
-Strings stored this way remain in Flash and do not consume valuable RAM.
-
-This is a common technique when writing firmware for small 8051-based systems.
+    static const char __code text[] = "Example";
 
 ---
 
 ## USB Host Operation
 
-The CH559 contains a built-in **USB host controller**, which is used to communicate with the connected USB device.
+Supports HID devices:
 
-RetroLink supports devices that implement the **USB HID class**, such as:
-
-- HID mice
-- HID joysticks
-- HID gamepads
-
-The firmware periodically polls the USB device and reads the **HID reports**.
-
-These reports contain information such as:
-- mouse movement
-- button states
-- joystick axis positions
-
-The firmware then interprets this data and converts it to signals suitable for the target system.
+- mouse
+- joystick
+- gamepads
 
 ---
 
 ## Mouse Emulation
 
-Classic mice for systems like the Atari ST and Amiga use **quadrature encoding**.
-Instead of sending absolute movement values, the mouse generates two signals per axis:
+Uses quadrature encoding:
 
-![quadrature encoding](images/quadrature_encoder_signals.png)
-
-These signals form a quadrature pair which indicates both **direction** and **movement speed**.
-RetroLink converts USB mouse movement into this quadrature pattern in software.
-The firmware uses a timer interrupt to generate the correct sequence of pulses at the required rate.
+![quadrature](images/quadrature_encoder_signals.png)
 
 ---
 
 ## Joystick Mapping
 
-USB controllers can use many different HID report layouts.
+Learning wizard detects:
 
-To handle this variability RetroLink includes a **learning wizard**.
-
-During the learning process the firmware:
-
-1. Records the idle report values
-2. Detects which byte changes when a control is moved
-3. Stores the offset and threshold used for that control
-
-This allows almost any HID joystick to be mapped automatically.
-
-The resulting configuration is stored in flash memory so it persists after power cycling.
+- changed bytes
+- thresholds
+- control mapping
 
 ---
 
 ## Open Collector Outputs
 
-Classic joystick interfaces use **open collector signalling**.
+Uses open-drain signals:
 
-This means the device should only **connect a line to ground**, while the host system provides the pull-up resistor.
-
-Driving the line high directly could cause conflicts or even damage hardware.
-
-The CH559 includes a special port configuration register that allows pins to operate in **open-drain / open-collector mode**.
-
-RetroLink uses this feature so the signals behave much more like the original hardware.
-
-This improves compatibility with vintage machines.
+- only pulls LOW
+- host provides pull-up
 
 ---
 
 ## Serial Configuration Interface
 
-RetroLink includes a **serial console interface** used for configuration.
-
-This is implemented with a **CH340N USB-to-serial converter**.
-
-Through this interface users can:
-
-- change mouse speed
-- switch between ST and Amiga mouse modes
-- swap mouse buttons
-- configure autofire frequency
-- run the joystick learning wizard
-
-The CH340N was chosen mainly because it is:
-
-- inexpensive
-- widely available
-- supported by drivers on most operating systems
-
-However, it is not strictly required.  
-The firmware simply exposes a standard UART interface, so an external **USB-to-serial adapter** could also have been used.
+The RX and TX UART0 lines are connected to the CH340N UART-to-USB controller. This ensures that a micro USB cable can be used for the configuration.
 
 ---
-
-## Power Protection
-
-The design includes an **LM66100 ideal diode controller**.
-
-This component prevents **reverse current flow** between the USB side and the retro computer.
-
-Some retro systems provide power on their joystick port, and without protection this could accidentally feed power back into the USB connection.
-
-The LM66100 ensures that power only flows in the correct direction.
-
----
-
-## A Few Fun Details
-
-A few small details that might be interesting:
-
-- The entire firmware runs on a classic **8051 architecture**, which is quite different from modern ARM-based microcontrollers.
-- The learning wizard dynamically determines the **HID report layout**, so the firmware does not need predefined controller profiles.
-- The CH559 allows pins to be reconfigured very flexibly, which makes it well suited for experimenting with different retro interfaces.
-
-RetroLink is intentionally kept relatively simple so that the hardware and firmware remain **easy to understand and modify**.
 
 # Hardware
 
-Information about building the hardware can be found here:
-
-```
-/hardware/README.md
-```
-
-You can order a **almost fully assembled board from JLCPCB**
+See the [hardware section](/hardware/README.md).
 
 ---
 
 # Connecting RetroLink
 
-1. Connect the **RetroLink adapter** to your computer's joystick/mouse port.
-2. Connect a **USB mouse or joystick** to the USB-A port.
-3. Connect the **USB debug port** to your PC if you want to configure the device.
-
-Configuration is done through a **serial terminal**.
+1. Plug into DB9 mouse or joystick port on your ST / Amiga /C64
+2. Connect HID mouse/controller to the USB-A port
+3. *Optional: connect micro USB cable to your PC to use the console*
+4.  For joystick emulation run the **learning wizzard**
 
 ---
 
-# Opening the configuration console
+# Opening the Configuration Console
 
-RetroLink provides a **serial terminal interface** for configuration.
+Connect a USB cable from your pc to the micro USB port on the pcb. Any serial console could be used like:
 
-Connect the device to your PC and open a serial terminal.
-
-Common tools:
-
+- Arduino's serial monitor
+- Visual Studio Code's serial monitor
 - PuTTY
 - TeraTerm
 - minicom
-- Arduino Serial Monitor
 
-Typical settings:
+Settings:
 
 ```
 2000000 baud
@@ -270,187 +277,26 @@ Typical settings:
 no parity
 1 stop bit
 ```
-
-After connecting you should see something like:
-
-```
-RetroLink v1.02
-USB Input Adapter
-ST / Amiga / C64
-github.com/Fbeen/RetroLink
-```
-
 ---
 
-# Main Menu
+## Main Menu
 
-The console shows the following menu:
-
-```
-1. Set Mouse Speed
-2. Emulate ST or Amiga mouse
-3. Swap Mouse Buttons
-4. Learn Controller
-5. Autofire Frequency
-```
-
-Simply press the number of the option you want to change.
-
----
-
-# Setting the Mouse Speed
-
-The mouse speed can be adjusted to match your personal preference.
-
-Available settings:
-
-```
-1 - Very Slow
-2 - Slow
-3 - Normal
-4 - Fast
-5 - Turbo
-```
-
-The selected value is stored in the device configuration.
-
----
-
-# Switching between Atari ST and Amiga mouse
-
-RetroLink can emulate both mouse protocols.
-
-Menu option:
-
-```
-2. Emulate ST or Amiga mouse
-```
-
-Each time you select it, the mode toggles between:
-
-- Atari ST mouse
-- Amiga mouse
-
----
-
-# Swapping Mouse Buttons
-
-Some users prefer the mouse buttons reversed.
-
-Menu option:
-
-```
-3. Swap Mouse Buttons
-```
-
-This toggles between:
-
-- normal button layout
-- swapped buttons
-
----
-
-# Configuring a USB Joystick
-
-USB controllers often use different report formats.  
-To support almost any controller, RetroLink includes a **learning wizard**.
-
-Select:
-
-```
-4. Learn Controller
-```
-
-The wizard will guide you through the setup.
-
-Example flow:
-
-```
-Controller Learning Wizard
---------------------------------
-
-Release joystick and scanning...
-
-Push UP
-Push DOWN
-Push LEFT
-Push RIGHT
-Press FIRE
-Press AUTOFIRE
-```
-
-Follow the instructions and move the joystick as requested.
-
-After the last step the configuration will be saved automatically.
-
----
-
-# Autofire Frequency
-
-RetroLink can generate autofire signals for the joystick.
-
-Menu option:
-
-```
-5. Autofire Frequency
-```
-
-Available options:
-
-```
-1 - Autofire 8 Hz
-2 - Autofire 9 Hz
-3 - Autofire 10 Hz
-4 - Autofire 11 Hz
-5 - Autofire 12 Hz
-```
-
-Choose the speed that feels best for the game you are playing.
+![Main menu](images/console.png)
 
 ---
 
 # Firmware
 
-Firmware can be compiled and flashed using the scripts in:
-
-```
-/scripts
-```
-
-More information can be found here:
-
-```
-/hardware/README.md
-```
+See the [firmware section](/firmware.md).
 
 ---
 
 # Repository
 
-Project repository: https://github.com/Fbeen/RetroLink
+https://github.com/Fbeen/RetroLink
 
 ---
 
-# Final notes
+# Disclaimer
 
-This is a **hobby project** built for fun and experimentation with retro hardware.
-
-Feel free to:
-
-- build your own
-- modify the hardware
-- improve the firmware
-- or use the code in your own projects
-
-Contributions and ideas are always welcome.
-
----
-
-## Disclaimer
-
-This project is provided **as-is**, without any warranty.
-
-Use this hardware and firmware **entirely at your own risk**.  
-The author cannot be held responsible for **any damage to hardware, software, data, or other equipment** resulting from the use or misuse of this project.
-
-Building and using the RetroLink adapter is a **DIY hobby activity**, and you are responsible for ensuring it is used safely with your own equipment.
+Provided as-is. Use at your own risk.

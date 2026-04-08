@@ -16,10 +16,11 @@ toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\hid_joystick.c -o build\hid_joystick.rel
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\retro_mouse.c -o build\retro_mouse.rel
 toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\retro_joystick.c -o build\retro_joystick.rel
+toolchain\SDCC\bin\sdcc -c -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -Isrc -Iinclude -DFREQ_SYS=48000000 src\led.c -o build\led.rel
 
 echo Linking...
 
-toolchain\SDCC\bin\sdcc build\main.rel build\util.rel build\hardware.rel build\USBHost.rel build\console.rel build\config.rel build\hid_mouse.rel build\hid_joystick.rel build\retro_mouse.rel build\retro_joystick.rel -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -o build\CH559USB.ihx
+toolchain\SDCC\bin\sdcc build\main.rel build\util.rel build\hardware.rel build\USBHost.rel build\console.rel build\config.rel build\hid_mouse.rel build\hid_joystick.rel build\retro_mouse.rel build\retro_joystick.rel build\led.rel -mmcs51 --model-large --xram-size 0x0800 --xram-loc 0x0600 --code-size 0xEFFF -o build\CH559USB.ihx
 
 echo Creating HEX...
 

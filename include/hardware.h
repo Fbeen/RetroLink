@@ -5,6 +5,7 @@
 
 /* hardware register addresses */
 
+#define PORT0 0x80
 #define PORT1 0x90
 #define PORT2 0xA0
 #define PORT3 0xB0
@@ -22,6 +23,10 @@ SFR(P2, PORT2);
 SFR(P3_DIR, 0xBE);
 SFR(P3, PORT3);
 
+/* setup P0 for the status LED */
+SFR(P0, PORT0);
+SFR(P0_DIR, 0xC4);
+SFR(P0_PU,  0xC5);
 
 /* ST mouse aliases */
 SBIT(MX2, PORT2, 6);        // DB9 pin 1 = X2
@@ -37,6 +42,9 @@ SBIT(JOY_DOWN,  PORT2, 4);  // DB9 pin 2 = DOWN
 SBIT(JOY_LEFT,  PORT2, 3);  // DB9 pin 3 = LEFT
 SBIT(JOY_RIGHT, PORT2, 2);  // DB9 pin 4 = RIGHT
 SBIT(JOY_FIRE,  PORT2, 5);  // DB9 pin 6 = FIRE
+
+/* status LED */
+SBIT(LED_STATUS, PORT0, 4);   // P0.4
 
 void hw_setup(void);
 

@@ -15,6 +15,7 @@ typedef unsigned char  __data             UINT8D;
 #include "retro_joystick.h"
 #include "config.h"
 #include "hardware.h"
+#include "led.h"
 
 //CH559 Timer0 clock selection
 //bTMR_CLK affects Timer0&1&2 at the same time, pay attention when using
@@ -23,51 +24,108 @@ typedef unsigned char  __data             UINT8D;
 #define mTimer0Clk12DivFsys( ) (T2MOD &= ~(bTMR_CLK | bT0_CLK)) //timer, clock= Fsys/12
 #define mTimer0CountClk( ) (TMOD |= bT0_CT) //counter, the falling edge of T0 pin is valid
 
-/* autofire variables */
+
+/* --------------------------------------------------
+   Timer defines
+-------------------------------------------------- */
+
+#define BTN_STEP     10    // 1 second
+#define BTN_T_BOOT   100   // 10 seconds
+
+/* --------------------------------------------------
+   Button variables
+-------------------------------------------------- */
+
+static uint8_t  btn_event = 0;
+
+/* --------------------------------------------------
+   Autofire
+-------------------------------------------------- */
+
 static uint16_t autofire_counter = 0;
 static uint8_t autofire_state = 0;
+
 static const uint16_t __code autofire_ticks[] =
 {
-    0,    // index 0 unused
-    150,  // 1 = 8 Hz
-    133,  // 2 = 9 Hz
-    120,  // 3 = 10 Hz
-    109,  // 4 = 11 Hz
-    100   // 5 = 12 Hz
+    0,
+    150,
+    133,
+    120,
+    109,
+    100
 };
 
-/******************************************** ************************************
-* Function Name : mTimer0ModSetup(UINT8 mode)
-* Description : CH559 Timing counter 0 mode 0 setting
-* Input: UINT8 mode, Timer0 mode selection
-                   0: Mode 0, 13-bit timer, TL0 high 3 bits are invalid
-                   1: Mode 1, 16-bit timer
-                   2: Mode 2, 8-bit auto-reload timer
-                   3: Mode 3, two 8-bit timers
-***************************************** *******************************************/
+/* --------------------------------------------------
+   Timer helpers
+-------------------------------------------------- */
+
 void mTimer0ModSetup(unsigned char mode)
 {
     TMOD &= 0xf0;
     TMOD |= mode;
 }
 
-/****************************************** ****************************************
-* Function Name : mTimer0SetData(UINT16 dat)
-* Description : CH559Timer0 TH0 and TL0 assignment
-* Input : UINT16 dat; timer assignment
-* Output : None
-* Return : None
-*************************** ***************************************************** **/
 void mTimer0SetData(unsigned short dat)
 {
     unsigned short tmp;
     tmp = 65536 - dat;
     TL0 = tmp & 0xff;
-    TH0 = (tmp>>8) & 0xff;
+    TH0 = (tmp >> 8) & 0xff;
 }
 
-void mTimer0Interrupt( void ) __interrupt INT_NO_TMR0 // timer0 interrupt-serviceroutine, gebruik registergroep 1
-{   // In modus 3 gebruikt TH0 Timer1 interrupt-resource
+/* --------------------------------------------------
+   TIMER ISR
+-------------------------------------------------- */
+
+void btn_tick()
+{
+    static uint16_t btn_ticks = 0;
+    static uint8_t  btn_state = 0;
+    static uint8_t level = 1;
+
+    if(!(P4_IN & (1 << 6)))   // pressed (active low)
+    {
+        if(btn_state == 0)
+        {
+            btn_state = 1;
+            btn_ticks = 0;
+            level = 1;
+        }
+
+        btn_ticks++;
+
+        if(btn_ticks % BTN_STEP == 0)
+        {
+            if(level < 6)
+            {
+                level++;
+                // puts("LED");
+                led_activate(500, 500);
+            } else if(btn_ticks >= BTN_T_BOOT)
+            {
+                btn_ticks = BTN_T_BOOT;
+                led_on();
+                level = 7;
+            }
+        }
+    }
+    else // release
+    {
+        if(btn_state == 1)
+        {
+            btn_event = level; /* activates button event in main function */
+            btn_state = 0;
+            led_off();
+        }
+    }
+}
+
+void mTimer0Interrupt(void) __interrupt INT_NO_TMR0
+{
+    static uint8_t ticks = 0;
+
+    /* ---- MOUSE / JOYSTICK ---- */
+
     if(USBHost_getControllerMode() == CTRL_MODE_MOUSE)
     {
         rm_nextStep();
@@ -78,56 +136,62 @@ void mTimer0Interrupt( void ) __interrupt INT_NO_TMR0 // timer0 interrupt-servic
         {
             autofire_counter++;
 
-            if(autofire_counter >= autofire_ticks[g_config.joy_autofire_speed])   // 50 ms
+            if(autofire_counter >= autofire_ticks[g_config.joy_autofire_speed])
             {
                 autofire_counter = 0;
-                autofire_state ^= 1;      // toggle fire
+                autofire_state ^= 1;
             }
 
-            if(autofire_state)
-                JOY_FIRE = 0;             // active low
-            else
-                JOY_FIRE = 1;
+            JOY_FIRE = autofire_state ? 0 : 1;
         }
     }
-    mTimer0SetData(20000);  // set timer on 0.5 millisecond (48.000.000 hz / 20.000 = 2400 hz)
+
+    /* ---- BUTTON HANDLING ---- */
+
+    ticks++;
+
+    /* prescaler 2400 hz / 240 = 10 hz or each 100 ms */
+    if(ticks >= 240)
+    {
+        ticks = 0;
+
+        if(console_get_state() == MENU_MAIN)
+            btn_tick();
+
+        led_tick();
+    }
+
+    mTimer0SetData(20000);  // 2400 Hz
 }
+
+/* --------------------------------------------------
+   MAIN
+-------------------------------------------------- */
 
 void main()
 {
     SP = 0x80;
 
-    /* configure hardware */
     hw_setup();
-
-    /* system clock for USB */
     initClock();
-
-    /* debug UART */
     initUART0(1000000, 1);
 
-    if(USBHost_getControllerMode() == CTRL_MODE_MOUSE) {
-        /* retro mouse pins + state */
+    if(USBHost_getControllerMode() == CTRL_MODE_MOUSE)
         rm_init();
-    } else if(USBHost_getControllerMode() == CTRL_MODE_JOYSTICK) {
+    else
         rj_init();
-    }
 
-    /* load configuration */
     if(!config_load())
     {
-        puts("Config data corrupt, defaults loaded");
+        puts("Config corrupt, defaults loaded");
         config_save();
     }
 
-    /* start USB host */
     resetHubDevices(0);
     initUSB_Host();
 
-    /* start console */
     console_start();
 
-    /* start timer (quadrature generator) */
     mTimer0ModSetup(1);
     mTimer0ClkFsys();
     mTimer0SetData(0x2323);
@@ -138,8 +202,22 @@ void main()
 
     while(1)
     {
-        if(!(P4_IN & (1 << 6)))
-            runBootloader();
+        if(btn_event)
+        {
+            uint8_t ev = btn_event;
+            btn_event = 0;
+
+            switch(ev)
+            {
+                case 1: show_main_menu(); break;
+                case 2: start_learning(); break;
+                case 3: swap_mouse_mode(); break;
+                case 4: swap_mouse_buttons(); break;
+                case 5: inc_mouse_speed(); break;
+                case 6: inc_autofire_speed(); break;
+                case 7: runBootloader(); break;
+            }
+        }
 
         checkRootHubConnections();
         pollHIDdevice();
