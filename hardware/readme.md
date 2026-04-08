@@ -1,5 +1,7 @@
 # Hardware
 
+![RetroLink](../images/retrolink.png)
+
 The RetroLink hardware was designed in **Autodesk EAGLE**.
 
 If you want to modify the design yourself, you can download Autodesk EAGLE for free through the **Fusion 360 Personal Use License**. This license is intended for hobbyists and non-commercial projects.
