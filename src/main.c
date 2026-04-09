@@ -77,6 +77,10 @@ void mTimer0SetData(unsigned short dat)
    TIMER ISR
 -------------------------------------------------- */
 
+/*
+ * Called every 100 milliseconds from the ISR below.
+ * Handles button presses and press durations
+ */
 void btn_tick()
 {
     static uint16_t btn_ticks = 0;
@@ -85,6 +89,7 @@ void btn_tick()
 
     if(!(P4_IN & (1 << 6)))   // pressed (active low)
     {
+        // initializes a new button press
         if(btn_state == 0)
         {
             btn_state = 1;
@@ -92,16 +97,20 @@ void btn_tick()
             level = 1;
         }
 
-        btn_ticks++;
+        btn_ticks++; // timer ticks
 
+        // on fixed intervals
         if(btn_ticks % BTN_STEP == 0)
         {
+            // next menu option
             if(level < 6)
             {
                 level++;
                 // puts("LED");
                 led_activate(500, 500);
-            } else if(btn_ticks >= BTN_T_BOOT)
+            } else
+            // after 10 seconds activate firmware flash mode
+            if(btn_ticks >= BTN_T_BOOT)
             {
                 btn_ticks = BTN_T_BOOT;
                 led_on();
@@ -120,6 +129,9 @@ void btn_tick()
     }
 }
 
+/*
+ * ISR of hardware timer 0. Called 2400 times per second!
+ */
 void mTimer0Interrupt(void) __interrupt INT_NO_TMR0
 {
     static uint8_t ticks = 0;
@@ -128,10 +140,11 @@ void mTimer0Interrupt(void) __interrupt INT_NO_TMR0
 
     if(USBHost_getControllerMode() == CTRL_MODE_MOUSE)
     {
-        rm_nextStep();
+        rm_nextStep(); // generates mouse quadrature (movements)
     }
     else
     {
+        /* joystick autofire button pressed ? */
         if(autofire_active)
         {
             autofire_counter++;
@@ -161,13 +174,16 @@ void mTimer0Interrupt(void) __interrupt INT_NO_TMR0
         led_tick();
     }
 
-    mTimer0SetData(20000);  // 2400 Hz
+    mTimer0SetData(20000);  // reset timer 0 to 2400 Hz (48.000.000 / 20.000 = 2400 Hz)
 }
 
 /* --------------------------------------------------
    MAIN
 -------------------------------------------------- */
 
+/*
+ * program start point
+ */
 void main()
 {
     SP = 0x80;
@@ -194,14 +210,16 @@ void main()
 
     mTimer0ModSetup(1);
     mTimer0ClkFsys();
-    mTimer0SetData(0x2323);
+    mTimer0SetData(20000 /*0x2323 */);
 
     TR0 = 1;
     ET0 = 1;
     EA  = 1;
 
+    /* loop forever */
     while(1)
     {
+        /* processes pcb button menu choices */
         if(btn_event)
         {
             uint8_t ev = btn_event;
@@ -210,7 +228,7 @@ void main()
             switch(ev)
             {
                 case 1: show_main_menu(); break;
-                case 2: start_learning(); break;
+                case 2: start_learning(false); break;
                 case 3: swap_mouse_mode(); break;
                 case 4: swap_mouse_buttons(); break;
                 case 5: inc_mouse_speed(); break;
@@ -219,8 +237,8 @@ void main()
             }
         }
 
-        checkRootHubConnections();
-        pollHIDdevice();
-        console_task();
+        checkRootHubConnections(); // Detects and handles USB device connect/disconnect events on the root hub
+        pollHIDdevice();           // Polls the active HID device for new input reports and processes them
+        console_task();            // Handles console input/output, including command parsing and user interaction
     }
 }

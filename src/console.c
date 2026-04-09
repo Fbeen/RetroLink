@@ -119,6 +119,9 @@ static const char __code txt_autofire_updated[] =
    Helpers
 -------------------------------------------------- */
 
+/*
+ * prints 40 empty lines on the console. Looks like a page refresh
+ */
 static void console_clear(void)
 {
     uint8_t i;
@@ -127,6 +130,10 @@ static void console_clear(void)
         puts("");
 }
 
+/*
+ * Return a pointer to the N-th prompt string from the learn_prompts table.
+ * This is UP, DOWN, LEFT, RIGHT, FIRE and AUTOFIRE.
+ */
 static const char* get_prompt(uint8_t index)
 {
     const char* p = learn_prompts;
@@ -140,6 +147,9 @@ static const char* get_prompt(uint8_t index)
     return p;
 }
 
+/*
+ * Check if the given HID report is within the learned idle range.
+ */
 static uint8_t report_is_idle(uint8_t *r)
 {
     uint8_t i;
@@ -156,6 +166,10 @@ static uint8_t report_is_idle(uint8_t *r)
     return 1;
 }
 
+/*
+ * Find the first byte in the report that deviates from the idle range.
+ * Returns the index, or 255 if no change is detected.
+ */
 static uint8_t find_changed_byte(uint8_t *r)
 {
     uint8_t i;
@@ -176,6 +190,10 @@ static uint8_t find_changed_byte(uint8_t *r)
    Learner
 -------------------------------------------------- */
 
+/*
+ * Initialize idle detection by resetting min/max values
+ * and starting the sampling process.
+ */
 static void learner_idle_begin(void)
 {
     uint8_t i;
@@ -191,6 +209,9 @@ static void learner_idle_begin(void)
     puts(txt_idle_scan);
 }
 
+/*
+ * Update idle min/max values using the latest HID report.
+ */
 static void learner_idle_update(void)
 {
     uint8_t i;
@@ -210,6 +231,10 @@ static void learner_idle_update(void)
     idle_sample_counter++;
 }
 
+/*
+ * Build a control mapping entry based on the current HID report.
+ * Determines axis direction or button based on deviation from idle.
+ */
 static uint8_t build_mapping(control_map_t *map)
 {
     uint8_t idx;
@@ -253,6 +278,9 @@ static uint8_t build_mapping(control_map_t *map)
    UI functions
 -------------------------------------------------- */
 
+/*
+ * Print the RetroLink header and project information.
+ */
 static void show_header(void)
 {
     puts(header);
@@ -264,6 +292,9 @@ static void show_header(void)
     puts("");
 }
 
+/*
+ * Display the main menu and switch to MENU_MAIN state.
+ */
 void show_main_menu(void)
 {
     show_header();
@@ -274,6 +305,9 @@ void show_main_menu(void)
     menu_state = MENU_MAIN;
 }
 
+/*
+ * Display the mouse speed configuration menu.
+ */
 static void show_mouse_speed_menu(void)
 {
     console_clear();
@@ -294,7 +328,11 @@ static void show_mouse_speed_menu(void)
    Learning wizard
 -------------------------------------------------- */
 
-void start_learning(void)
+/*
+ * Start the controller learning wizard.
+ * If started from hardware button, adds a small delay.
+ */
+void start_learning(uint8_t console)
 {
     learn_step = 0;
     learn_wait_release = 0;
@@ -305,9 +343,19 @@ void start_learning(void)
 
     learner_idle_begin();
 
+    /* delays only when started with pcb button */
+    if(!console) {
+        delay(500);
+    }
+
+    led_activate(200, 600);
+
     menu_state = MENU_JOY_LEARN;
 }
 
+/*
+ * Advance to the next learning step or finalize the process.
+ */
 static void next_learn_step(void)
 {
     learn_step++;
@@ -318,6 +366,9 @@ static void next_learn_step(void)
         puts(txt_done);
         led_activate(2000, 2000);
 
+        /* now save the vid and pid */
+        g_config.vid = get_vid();
+        g_config.pid = get_pid();
         config_save();
 
         console_clear();
@@ -334,11 +385,18 @@ static void next_learn_step(void)
    Public API
 -------------------------------------------------- */
 
+/*
+ * Initialize the console and show the main menu.
+ */
 void console_start(void)
 {
     show_main_menu();
 }
 
+/*
+ * Handle console input, learning wizard logic,
+ * and button-based abort during learning.
+ */
 void console_task(void)
 {
     char c;
@@ -426,7 +484,7 @@ void console_task(void)
         case MENU_MAIN:
 
             if(c == '1')
-                start_learning();
+                start_learning(true);
             else if(c == '2')
                 swap_mouse_mode();
             else if(c == '3')
@@ -479,6 +537,9 @@ void console_task(void)
     }
 }
 
+/*
+ * Toggle mouse button swap setting and provide feedback.
+ */
 void swap_mouse_buttons(void)
 {
     // swap buttons
@@ -500,6 +561,9 @@ void swap_mouse_buttons(void)
     show_main_menu();
 }
 
+/*
+ * Toggle mouse mode (ST/Amiga) and provide feedback.
+ */
 void swap_mouse_mode(void)
 {
     // swap buttons
@@ -521,6 +585,9 @@ void swap_mouse_mode(void)
     show_main_menu();
 }
 
+/*
+ * Display the autofire configuration menu.
+ */
 static void show_autofire_menu(void)
 {
     console_clear();
@@ -533,6 +600,9 @@ static void show_autofire_menu(void)
     menu_state = MENU_AUTOFIRE;
 }
 
+/*
+ * Increase mouse speed setting and indicate new value via LED.
+ */
 void inc_mouse_speed()
 {
     g_config.mouse_speed++;
@@ -545,6 +615,9 @@ void inc_mouse_speed()
     led_activate(200, 400 * g_config.mouse_speed);
 }
 
+/*
+ * Increase autofire speed setting and indicate new value via LED.
+ */
 void inc_autofire_speed()
 {
     g_config.joy_autofire_speed++;
@@ -557,6 +630,9 @@ void inc_autofire_speed()
     led_activate(200, 400 * g_config.joy_autofire_speed);
 }
 
+/*
+ * Abort the learning wizard and return to the main menu.
+ */
 static void abort_learning(void)
 {
     puts("");
@@ -566,6 +642,9 @@ static void abort_learning(void)
     show_main_menu();
 }
 
+/*
+ * Get the current console menu state.
+ */
 console_state_t console_get_state(void)
 {
     return menu_state;

@@ -3,6 +3,10 @@
 #include "config.h"
 #include "util.h"
 
+/*
+ * Check if a mapped control is active based on the current HID report.
+ * Supports both button (bitmask or exact match) and axis-based inputs.
+ */
 uint8_t control_active(control_map_t *map, uint8_t *report)
 {
     uint8_t v = report[map->offset];
@@ -32,6 +36,10 @@ uint8_t control_active(control_map_t *map, uint8_t *report)
     return 0;
 }
 
+/*
+ * Parse a joystick HID report and convert it into a normalized
+ * joystick state using the configured control mappings.
+ */
 void parseJoystickData(uint8_t *report)
 {
     joystick_report_t j;

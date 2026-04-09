@@ -2216,8 +2216,9 @@ design rules under a new name.</description>
 <via x="30.099" y="5.969" extent="1-16" drill="0.35"/>
 <wire x1="28.915" y1="6.005" x2="30.063" y2="6.005" width="0.1524" layer="1"/>
 <wire x1="30.063" y1="6.005" x2="30.099" y2="5.969" width="0.1524" layer="1"/>
-<wire x1="24.638" y1="13.716" x2="24.638" y2="11.43" width="0.1524" layer="16"/>
-<wire x1="24.638" y1="11.43" x2="30.099" y2="5.969" width="0.1524" layer="16"/>
+<wire x1="24.638" y1="13.716" x2="24.638" y2="10.922" width="0.1524" layer="16"/>
+<wire x1="29.591" y1="5.969" x2="30.099" y2="5.969" width="0.1524" layer="16"/>
+<wire x1="24.638" y1="10.922" x2="29.591" y2="5.969" width="0.1524" layer="16"/>
 </signal>
 <signal name="5V_INT">
 <contactref element="U3" pad="6"/>

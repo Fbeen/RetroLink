@@ -11909,13 +11909,6 @@ Source: www.kingbright.com</description>
 <wire x1="182.88" y1="124.46" x2="177.8" y2="124.46" width="0.1524" layer="91" grouprefs="BUTTON_AND_LED"/>
 <label x="177.8" y="124.46" size="1.27" layer="95" rot="R180" xref="yes" grouprefs="BUTTON_AND_LED"/>
 </segment>
-<segment>
-<pinref part="U1" gate="G$1" pin="P4.3/PWM1_/A3"/>
-<wire x1="48.26" y1="7.62" x2="48.26" y2="-7.62" width="0.1524" layer="91"/>
-<wire x1="48.26" y1="-7.62" x2="38.1" y2="-7.62" width="0.1524" layer="91"/>
-<wire x1="38.1" y1="-7.62" x2="38.1" y2="0" width="0.1524" layer="91"/>
-<label x="38.1" y="0" size="1.27" layer="95" rot="R90" xref="yes"/>
-</segment>
 </net>
 <net name="5V_INT" class="0">
 <segment>

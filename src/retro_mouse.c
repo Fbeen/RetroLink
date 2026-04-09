@@ -20,6 +20,9 @@ static const __code uint8_t quad[4] =
     0b10
 };
 
+/*
+ * initializes default mouse DB9 signal states
+ */
 void rm_init(void)
 {
     // reset movement accumulators
@@ -30,13 +33,30 @@ void rm_init(void)
     x_state = 0;
     y_state = 0;
 
-    // stabiele encoder toestand
+    // stable encoder condition
     MX1 = 0;
     MX2 = 0;
     MY1 = 0;
     MY2 = 0;
 }
 
+/*
+ * Generates one quadrature step for the emulated mouse on both X and Y axes.
+ *
+ * The function consumes pending movement (mx, my) and advances or reverses
+ * the quadrature state machines (x_state, y_state) one step at a time,
+ * depending on the direction of movement. Each call outputs exactly one
+ * step per axis if movement is pending.
+ *
+ * The current quadrature states are translated into signal levels using
+ * a lookup table (quad[]) and written to the corresponding hardware pins.
+ *
+ * It supports both Atari ST and Amiga mouse pinouts. When swap mode is
+ * enabled, X2 and Y2 signals are remapped to match the Amiga wiring.
+ *
+ * This function is typically called from a timer interrupt to generate
+ * properly timed quadrature signals for smooth mouse movement.
+ */
 void rm_nextStep(void)
 {
     // ---- X axis ----
@@ -97,6 +117,10 @@ void rm_nextStep(void)
     }
 }
 
+/* 
+ * calculates x and y mouse movement counters mx and my which will be handled by the ISR to create quadrature signals
+ * sets mouse buttons DB9 signal states, active low
+ */
 void rm_event(mouse_report_t *m)
 {
     mx += m->dx;

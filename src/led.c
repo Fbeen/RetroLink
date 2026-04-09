@@ -8,13 +8,17 @@
 
 static led_t led = { 0, 0, 0, 0 };
 
-/* turn the led on */
+/* 
+ * turn the led on
+ */
 void led_on()
 {
     led_activate(0, 0);
 }
 
-/* turn the led off */
+/* 
+ * turn the led off
+ */
 void led_off()
 {
     led.interval = 0;

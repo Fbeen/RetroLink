@@ -2,6 +2,9 @@
 #include "CH559.h"
 #include "USBHost.h"
 #include "hid_mouse.h"
+#include "config.h"
+#include "console.h"
+#include "led.h"
 
 /* laatste HID report voor wizard */
 uint8_t __xdata g_last_report[LEARN_MAX_REPORT];
@@ -84,6 +87,9 @@ static vendor_product_id_t __xdata vendorProductID;
 
 /* ---------------- Helpers ---------------- */
 
+/*
+ * Copy a setup/request packet from code memory to the TX buffer.
+ */
 static void fillTxBuffer(PUINT8C data, unsigned char len)
 {
     unsigned char i;
@@ -91,11 +97,17 @@ static void fillTxBuffer(PUINT8C data, unsigned char len)
         TxBuffer[i] = data[i];
 }
 
+/*
+ * Set the current USB device address for host communication.
+ */
 static void setHostUsbAddr(unsigned char addr)
 {
     USB_DEV_AD = (USB_DEV_AD & bUDA_GP_BIT) | (addr & 0x7F);
 }
 
+/*
+ * Configure USB speed (full-speed or low-speed).
+ */
 static void setUsbSpeed(unsigned char fullSpeed)
 {
     if (fullSpeed)
@@ -109,6 +121,9 @@ static void setUsbSpeed(unsigned char fullSpeed)
     }
 }
 
+/*
+ * Disable the root hub port and reset internal state.
+ */
 static void disableRootHubPort(void)
 {
     rootHubDevice.status  = ROOT_DEVICE_DISCONNECT;
@@ -118,6 +133,9 @@ static void disableRootHubPort(void)
     UHUB0_CTRL = 0;
 }
 
+/*
+ * Reset the root hub port and prepare for enumeration.
+ */
 static void resetRootHubPort(void)
 {
     endpoint0Size = DEFAULT_ENDP0_SIZE;
@@ -132,6 +150,10 @@ static void resetRootHubPort(void)
     UIF_DETECT = 0;
 }
 
+/*
+ * Enable the root hub port if a device is attached.
+ * Detects device speed and configures the controller accordingly.
+ */
 static unsigned char enableRootHubPort(void)
 {
     if (USB_HUB_ST & bUHS_H0_ATTACH)
@@ -155,6 +177,9 @@ static unsigned char enableRootHubPort(void)
     return ERR_USB_DISCON;
 }
 
+/*
+ * Select the currently active USB device (address + speed).
+ */
 static void selectHubPort(void)
 {
     setHostUsbAddr(rootHubDevice.address);
@@ -163,6 +188,10 @@ static void selectHubPort(void)
 
 /* ---------------- USB transfers ---------------- */
 
+/*
+ * Perform a low-level USB host transfer (SETUP/IN/OUT).
+ * Handles retries, NAKs and toggle bits.
+ */
 static unsigned char hostTransfer(unsigned char endp_pid, unsigned char tog, unsigned short timeout)
 {
     static unsigned short retries = 0;
@@ -221,6 +250,10 @@ static unsigned char hostTransfer(unsigned char endp_pid, unsigned char tog, uns
     return ERR_USB_TRANSFER;
 }
 
+/*
+ * Perform a USB control transfer (setup + optional data + status stage).
+ * Used for enumeration and standard USB requests.
+ */
 static unsigned char hostCtrlTransfer(unsigned char __xdata *DataBuf, unsigned short *RetLen, unsigned short maxLength)
 {
     static unsigned short RemLen;
@@ -303,6 +336,10 @@ static unsigned char hostCtrlTransfer(unsigned char __xdata *DataBuf, unsigned s
 
 /* ---------------- Enumeration steps ---------------- */
 
+/*
+ * Request and parse the USB device descriptor.
+ * Extracts endpoint size and stores VID/PID.
+ */
 static unsigned char getDeviceDescriptor(void)
 {
     unsigned char s;
@@ -326,6 +363,9 @@ static unsigned char getDeviceDescriptor(void)
     return ERR_SUCCESS;
 }
 
+/*
+ * Assign a USB address to the connected device.
+ */
 static unsigned char setUsbAddress(unsigned char addr)
 {
     unsigned char s;
@@ -344,6 +384,9 @@ static unsigned char setUsbAddress(unsigned char addr)
     return ERR_SUCCESS;
 }
 
+/*
+ * Retrieve the full configuration descriptor from the device.
+ */
 static unsigned char getConfigurationDescriptor(void)
 {
     unsigned char s;
@@ -374,6 +417,9 @@ static unsigned char getConfigurationDescriptor(void)
     return ERR_SUCCESS;
 }
 
+/*
+ * Set the active USB configuration.
+ */
 static unsigned char setUsbConfig(unsigned char cfg)
 {
     PXUSB_SETUP_REQ pSetupReq = (PXUSB_SETUP_REQ)TxBuffer;
@@ -384,6 +430,9 @@ static unsigned char setUsbConfig(unsigned char cfg)
     return hostCtrlTransfer(0, 0, 0);
 }
 
+/*
+ * Send HID SetIdle request to reduce report rate (optional).
+ */
 static void setHidIdle(uint8_t interfaceNumber)
 {
     /* Not fatal if this fails; many devices ignore it. */
@@ -392,7 +441,9 @@ static void setHidIdle(uint8_t interfaceNumber)
     (void)hostCtrlTransfer(0, 0, 0);
 }
 
-/* Find first HID interface + first interrupt IN endpoint */
+/*
+ * Find and bind the first HID interface and its interrupt IN endpoint.
+ */
 static unsigned char bindFirstHidInterface(void)
 {
     static unsigned short total;
@@ -469,6 +520,9 @@ static unsigned char bindFirstHidInterface(void)
 
 /* ---------------- Public API ---------------- */
 
+/*
+ * Reset all USB device-related state and clear stored VID/PID.
+ */
 void resetHubDevices(uint8_t hubindex)
 {
     /* keep signature; only hubindex==0 exists */
@@ -486,6 +540,9 @@ void resetHubDevices(uint8_t hubindex)
     hidDevice.toggle    = 0;
 }
 
+/*
+ * Initialize the CH559 USB host controller.
+ */
 void initUSB_Host(void)
 {
     IE_USB = 0;
@@ -515,6 +572,10 @@ void initUSB_Host(void)
     initializeRootHubConnection();
 }
 
+/*
+ * Perform full USB enumeration on the root hub device.
+ * Includes descriptor reading, address assignment and HID binding.
+ */
 static unsigned char initializeRootHubConnection(void)
 {
     static unsigned char s;
@@ -614,6 +675,9 @@ static unsigned char initializeRootHubConnection(void)
     return ERR_USB_UNKNOWN;
 }
 
+/*
+ * Check for USB connect/disconnect events on the root hub.
+ */
 uint8_t checkRootHubConnections(void)
 {
     unsigned char s = ERR_SUCCESS;
@@ -646,6 +710,9 @@ uint8_t checkRootHubConnections(void)
     return s;
 }
 
+/*
+ * Poll the connected HID device and process incoming reports.
+ */
 void pollHIDdevice(void)
 {
     unsigned char s;
@@ -694,6 +761,10 @@ puts("\r\n");
     }
 }
 
+/*
+ * Set the active controller mode (mouse / joystick / none).
+ * Initializes corresponding subsystem and triggers feedback.
+ */
 static void setControllerMode(controller_mode_t mode)
 {
     if(mode == currentMode)
@@ -706,11 +777,18 @@ static void setControllerMode(controller_mode_t mode)
         case CTRL_MODE_MOUSE:
             rm_init();
             puts("Mouse connected");
+            led_activate(2000, 2000);
             break;
 
         case CTRL_MODE_JOYSTICK:
             rj_init();
-            puts("Joystick connected");
+            if(g_config.vid == get_vid() && g_config.pid == get_pid())
+            {
+                puts("Joystick connected");
+                led_activate(2000, 2000);
+            } else {
+                start_learning(true);
+            }
             break;
 
         case CTRL_MODE_NONE:
@@ -720,7 +798,28 @@ static void setControllerMode(controller_mode_t mode)
     }
 }
 
+/*
+ * Get the current controller mode.
+ */
 controller_mode_t USBHost_getControllerMode(void)
 {
     return currentMode;
+}
+
+/*
+ * Return the USB Vendor ID as a 16-bit value.
+ */
+uint16_t get_vid(void)
+{
+    return ((uint16_t)vendorProductID.idVendorH << 8) |
+            vendorProductID.idVendorL;
+}
+
+/*
+ * Return the USB Product ID as a 16-bit value.
+ */
+uint16_t get_pid(void)
+{
+    return ((uint16_t)vendorProductID.idProductH << 8) |
+            vendorProductID.idProductL;
 }

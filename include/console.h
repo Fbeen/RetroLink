@@ -19,7 +19,7 @@ static void learner_idle_update(void);
 static void show_header(void);
 void show_main_menu(void);
 static void show_mouse_speed_menu(void);
-void start_learning(void);
+void start_learning(uint8_t console);
 static void next_learn_step(void);
 void console_start(void);
 void console_task(void);

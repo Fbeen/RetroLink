@@ -8,7 +8,7 @@ __xdata config_t            g_config;
 
 #define CONFIG_FLASH_ADDR  0xF000
 #define CONFIG_MAGIC       0x52
-#define CONFIG_VERSION     2
+#define CONFIG_VERSION     3
 
 /* Macro that calculates the address of one joystick profile */
 #define PROFILE_ADDR(i) (PROFILE_FLASH_ADDR + (i * sizeof(joystick_profile_t)))
@@ -25,6 +25,11 @@ __xdata config_t            g_config;
 #define bDATA_WE      0x04
 #endif
 
+/* ---------------- Helpers ---------------- */
+
+/*
+ * enable write access to the CH559’s internal data flash memory
+ */
 static void flash_data_enable(void)
 {
     SAFE_MOD = 0x55;
@@ -33,6 +38,9 @@ static void flash_data_enable(void)
     SAFE_MOD = 0x00;
 }
 
+/*
+ * disable write access to the CH559’s internal data flash memory
+ */
 static void flash_data_disable(void)
 {
     SAFE_MOD = 0x55;
@@ -41,6 +49,10 @@ static void flash_data_disable(void)
     SAFE_MOD = 0x00;
 }
 
+/*
+ * erases CH559’s internal data flash memory.
+ * Flash memory must be erased before you write new data.
+ */
 void flash_erase_sector(uint16_t addr)
 {
     flash_data_enable();
@@ -51,6 +63,9 @@ void flash_erase_sector(uint16_t addr)
     flash_data_disable();
 }
 
+/*
+ * write one word (two bytes) to CH559’s internal data flash memory.
+ */
 void flash_write_word(uint16_t addr, uint16_t value)
 {
     flash_data_enable();
@@ -62,6 +77,9 @@ void flash_write_word(uint16_t addr, uint16_t value)
     flash_data_disable();
 }
 
+/*
+ * default flash configuration. Used when there was no valid config in flash memory.
+ */
 void config_default(void)
 {
     g_config.magic = CONFIG_MAGIC;
@@ -72,9 +90,15 @@ void config_default(void)
     g_config.mouse_swap_buttons = 0;
     g_config.joy_autofire_speed = 0;
 
+    g_config.vid = 0x0000;
+    g_config.pid = 0x0000;
     /* leave joystick button mappings empty */
 }
 
+/*
+ * tries to load config from flash memory.
+ * returns true on success of false if there is no valid config in flash
+ */
 bool config_load(void)
 {
     uint8_t i;
@@ -97,6 +121,9 @@ bool config_load(void)
     return true;
 }
 
+/*
+ * saves config into the CH559's flash memory.
+ */
 void config_save(void)
 {
     uint8_t i;

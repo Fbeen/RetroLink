@@ -58,6 +58,8 @@ typedef struct
     uint8_t mouse_swap_buttons;
     uint8_t joy_autofire_speed;
 
+    uint16_t vid; // vendor id of stored joystick configuration
+    uint16_t pid; // product id of stored joystick configuration
     control_map_t map[CTRL_MAP_COUNT]; // joystick button mapping
 } config_t;
 
@@ -68,5 +70,7 @@ bool config_load(void);
 void config_save(void);
 void flash_erase_sector(uint16_t addr);
 void flash_write_byte(uint16_t addr, uint8_t value);
+uint16_t get_vid(void);
+uint16_t get_pid(void);
 
 #endif// This are the joystick configurations which can be different any brand and device

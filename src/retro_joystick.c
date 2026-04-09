@@ -5,6 +5,9 @@
 /* autofire status */
 uint8_t autofire_active = 0;
 
+/*
+ * initializes default joystick DB9 signal states
+ */
 void rj_init(void)
 {
     JOY_UP    = 1;
@@ -16,7 +19,10 @@ void rj_init(void)
     autofire_active = 0;
 }
 
-/* active low Atari / Amiga joystick */
+/* 
+ * sets joystick DB9 signal states
+ * active low Atari / Amiga joystick
+ */
 void rj_event(joystick_report_t *j)
 {
     JOY_UP    = !j->up;
