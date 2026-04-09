@@ -63,9 +63,10 @@
 <wire x1="35.23" y1="2.54" x2="35.23" y2="22.85" width="0" layer="20"/>
 <wire x1="35.23" y1="22.85" x2="0" y2="22.85" width="0" layer="20"/>
 <wire x1="0" y1="22.85" x2="0" y2="2.54" width="0" layer="20"/>
-<text x="31.369" y="10.922" size="1.27" layer="25" rot="R90">DB9</text>
-<text x="0.635" y="3.175" size="1.016" layer="25">https://github.com/fbeen/retrolink</text>
-<text x="32.004" y="3.175" size="1.016" layer="25">v1.3</text>
+<text x="25.908" y="17.272" size="1.016" layer="25">Config</text>
+<text x="0.381" y="3.048" size="0.8128" layer="25">https://github.com/fbeen/retrolink</text>
+<text x="32.004" y="3.175" size="1.016" layer="25">v1.4</text>
+<text x="1.651" y="21.336" size="1.016" layer="25">RetroLink</text>
 </plain>
 <libraries>
 <library name="rcl" urn="urn:adsk.eagle:library:334">
@@ -1888,7 +1889,7 @@ design rules under a new name.</description>
 </autorouter>
 <elements>
 <element name="C6" library="rcl" library_urn="urn:adsk.eagle:library:334" package="C0603" package3d_urn="urn:adsk.eagle:package:23616/2" value="100nf" x="10.922" y="6.858" smashed="yes" rot="R90">
-<attribute name="NAME" x="10.287" y="5.715" size="1.27" layer="25" rot="R90"/>
+<attribute name="NAME" x="10.287" y="5.715" size="1.016" layer="25" rot="R90"/>
 <attribute name="POPULARITY" value="73" x="51.562" y="43.688" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="51.562" y="43.688" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" x="12.827" y="6.223" size="1.27" layer="27" rot="R90"/>
@@ -1899,12 +1900,12 @@ design rules under a new name.</description>
 <attribute name="SPICEPREFIX" value="C" x="61.087" y="-35.687" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C3" library="rcl" library_urn="urn:adsk.eagle:library:334" package="C0603" package3d_urn="urn:adsk.eagle:package:23616/2" value="4.7Uf" x="17.907" y="7.366" smashed="yes">
-<attribute name="NAME" x="16.764" y="8.001" size="1.27" layer="25"/>
+<attribute name="NAME" x="16.764" y="8.001" size="1.016" layer="25"/>
 <attribute name="POPULARITY" value="73" x="67.437" y="-33.274" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="67.437" y="-33.274" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C4" library="rcl" library_urn="urn:adsk.eagle:library:334" package="C0603" package3d_urn="urn:adsk.eagle:package:23616/2" value="10Uf" x="22.479" y="17.78" smashed="yes">
-<attribute name="NAME" x="18.923" y="16.764" size="1.27" layer="25"/>
+<attribute name="NAME" x="18.923" y="16.764" size="1.016" layer="25"/>
 <attribute name="POPULARITY" value="73" x="40.259" y="-30.48" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="40.259" y="-30.48" size="1.778" layer="27" display="off"/>
 </element>
@@ -1914,7 +1915,7 @@ design rules under a new name.</description>
 <attribute name="SPICEPREFIX" value="R" x="57.658" y="-32.893" size="1.778" layer="27" display="off"/>
 </element>
 <element name="U1" library="CH559L" package="TQFP48_7X7" value="CH559L" x="24.765" y="8.255" smashed="yes" rot="R90">
-<attribute name="NAME" x="31.877" y="5.969" size="1.27" layer="25" rot="R180"/>
+<attribute name="NAME" x="29.845" y="12.7" size="1.016" layer="25" rot="R180"/>
 </element>
 <element name="X3" library="con-subd" library_urn="urn:adsk.eagle:library:189" package="F09D" package3d_urn="urn:adsk.eagle:package:10273/1" value="DB9" x="39.37" y="12.7" smashed="yes" rot="R270">
 <attribute name="MF" value="" x="27.94" y="-19.05" size="1.778" layer="27" rot="R270" display="off"/>
@@ -1930,7 +1931,7 @@ design rules under a new name.</description>
 <attribute name="DESCRIPTION" value="                                                      USB to Serial Port Chip                                              " x="12.7" y="12.7" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="MF" value="WCH" x="12.7" y="12.7" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="MP" value="CH340N" x="12.7" y="12.7" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="10.033" y="11.557" size="1.27" layer="25" rot="R90"/>
+<attribute name="NAME" x="10.033" y="11.557" size="1.016" layer="25" rot="R90"/>
 <attribute name="PACKAGE" value="Package " x="12.7" y="12.7" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="PRICE" value="None" x="12.7" y="12.7" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="SNAPEDA_LINK" value="https://www.snapeda.com/parts/CH340N/WCH/view-part/?ref=snap" x="12.7" y="12.7" size="1.778" layer="27" rot="R270" display="off"/>
@@ -1943,7 +1944,7 @@ design rules under a new name.</description>
 <attribute name="VALUE" x="13.335" y="5.461" size="1.27" layer="27"/>
 </element>
 <element name="C1" library="rcl" library_urn="urn:adsk.eagle:library:334" package="C0603" package3d_urn="urn:adsk.eagle:package:23616/2" value="100nf" x="17.907" y="9.779" smashed="yes">
-<attribute name="NAME" x="16.764" y="10.414" size="1.27" layer="25"/>
+<attribute name="NAME" x="16.764" y="10.414" size="1.016" layer="25"/>
 <attribute name="POPULARITY" value="73" x="17.907" y="9.779" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="C" x="17.907" y="9.779" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="17.272" y="7.874" size="1.27" layer="27"/>
@@ -1967,12 +1968,12 @@ design rules under a new name.</description>
 <attribute name="NAME" x="27.178" y="23.5966" size="1.27" layer="27" ratio="6" rot="SR270"/>
 </element>
 <element name="LED1" library="led" library_urn="urn:adsk.eagle:library:259" package="SML0603" package3d_urn="urn:adsk.eagle:package:15832/1" value="Status" x="17.526" y="15.367" smashed="yes">
-<attribute name="NAME" x="15.621" y="13.462" size="1.27" layer="25"/>
+<attribute name="NAME" x="15.621" y="13.462" size="1.016" layer="25"/>
 <attribute name="POPULARITY" value="17" x="17.526" y="15.367" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="16.526" y="13.367" size="1.27" layer="27"/>
 </element>
-<element name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" package="R0603" package3d_urn="urn:adsk.eagle:package:23555/3" value="470" x="20.955" y="15.367" smashed="yes">
-<attribute name="NAME" x="20.32" y="13.462" size="1.27" layer="25"/>
+<element name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" package="R0603" package3d_urn="urn:adsk.eagle:package:23555/3" value="330" x="20.955" y="15.367" smashed="yes">
+<attribute name="NAME" x="20.32" y="13.462" size="1.016" layer="25"/>
 <attribute name="POPULARITY" value="70" x="20.955" y="15.367" size="1.778" layer="27" display="off"/>
 <attribute name="SPICEPREFIX" value="R" x="20.955" y="15.367" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="20.32" y="13.462" size="1.27" layer="27"/>
@@ -1991,7 +1992,6 @@ design rules under a new name.</description>
 <attribute name="DESCRIPTION" value="                                                      Sensor Cables / Actuator Cables                                              " x="14.605" y="22.86" size="1.778" layer="27" display="off"/>
 <attribute name="MF" value="Shouhan" x="14.605" y="22.86" size="1.778" layer="27" display="off"/>
 <attribute name="MP" value="MICROXNJ" x="14.605" y="22.86" size="1.778" layer="27" display="off"/>
-<attribute name="NAME" x="10.405" y="16.76" size="1.27" layer="25" align="top-left"/>
 <attribute name="PACKAGE" value="Package " x="14.605" y="22.86" size="1.778" layer="27" display="off"/>
 <attribute name="PRICE" value="None" x="14.605" y="22.86" size="1.778" layer="27" display="off"/>
 <attribute name="SNAPEDA_LINK" value="https://www.snapeda.com/parts/MICROXNJ/Shouhan/view-part/?ref=snap" x="14.605" y="22.86" size="1.778" layer="27" display="off"/>
