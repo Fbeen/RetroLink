@@ -66,7 +66,7 @@ The firmware is modular and split by functionality:
 
 ---
 
-# ?Firmware Architecture
+# Firmware Architecture
 
 ## 1. Data Flow (High-Level)
 
@@ -155,7 +155,7 @@ The firmware uses:
 
 ---
 
-# ?Timers
+# Timers
 
 ## Timer0 (Main Timing Engine)
 
@@ -210,7 +210,7 @@ Used for:
 
 ---
 
-# ?USB HID Processing
+# USB HID Processing
 
 ## USB Stack
 
@@ -271,7 +271,7 @@ Responsibilities:
 
 ---
 
-# ?Configuration
+# Configuration
 
 File:
 
@@ -302,7 +302,6 @@ Handles:
 
 - Status feedback
 - Menu navigation
-- Error indication
 
 ---
 
@@ -316,7 +315,7 @@ Handles:
 
 ---
 
-# ?Console (UART)
+# Console (UART)
 
 File:
 
@@ -327,10 +326,6 @@ Features:
 - Debug output
 - Configuration interface
 - Menu system
-
-Example output:
-
-    [TC] System messages
 
 ---
 
