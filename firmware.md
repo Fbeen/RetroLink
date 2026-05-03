@@ -8,7 +8,7 @@ This firmware runs on the **CH559 (8051 + USB host)** and translates USB HID inp
 
 ## Compiling and flashing instructions
 
-See the [hardware section](/tree/main/hardware#compiling-and-flashing-instructions).
+See the [hardware section](/hardware/readme.md#compiling-and-flashing-the-firmware-windows).
 
 ---
 
