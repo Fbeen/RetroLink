@@ -4,7 +4,7 @@
 #include "CH559.h"
 
 /* remove this line on the final hardware version */
-#define BETA_VERSION
+// #define BETA_VERSION
 
 /* hardware register addresses */
 #define PORT0 0x80
