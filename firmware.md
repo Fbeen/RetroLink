@@ -6,6 +6,35 @@ This firmware runs on the **CH559 (8051 + USB host)** and translates USB HID inp
 
 ---
 
+## About the Firmware Language
+
+This firmware is written in a specialized dialect of **C targeting the 8051 architecture**, specifically for the **WCH CH559 microcontroller**.
+
+Although it looks like standard C, there are several important differences compared to desktop or ARM-based embedded development:
+
+- Uses **8051-specific memory qualifiers** such as:
+  - `__code` (flash memory)
+  - `__xdata`, `__idata`, etc. (different RAM regions)
+- Strong awareness of **very limited RAM**
+- Heavy reliance on **interrupt-driven design**
+- Direct manipulation of **special function registers (SFRs)**
+- Tight coupling to hardware timing (especially for quadrature signals)
+
+Because of this, the code is closer to **"embedded C for 8-bit MCUs"** than modern C used on platforms like ARM Cortex (e.g. STM32 or RP2040).
+
+### Why this matters
+
+If you plan to modify or extend this firmware:
+
+- Be mindful of **memory placement** (RAM vs flash)
+- Avoid large stack usage or dynamic allocation
+- Keep interrupt routines **fast and deterministic**
+- Understand that some constructs are compiler- or architecture-specific
+
+In short: this is **low-level, hardware-near C**, optimized for a small 8-bit microcontroller rather than a general-purpose system.
+
+---
+
 # Purpose of this README
 
 This document is intended to:
