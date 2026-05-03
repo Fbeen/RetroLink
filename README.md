@@ -246,7 +246,7 @@ The RX and TX UART0 lines are connected to the CH340N UART-to-USB controller. Th
 
 # Hardware
 
-See the [hardware section](/hardware/README.md).
+See the [hardware section](/hardware/readme.md).
 
 ---
 

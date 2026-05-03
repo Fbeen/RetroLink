@@ -6,6 +6,12 @@ This firmware runs on the **CH559 (8051 + USB host)** and translates USB HID inp
 
 ---
 
+## Compiling and flashing instructions
+
+See the [hardware section](/hardware#compiling-and-flashing-the-firmware-windows).
+
+---
+
 ## About the Firmware Language
 
 This firmware is written in a specialized dialect of **C targeting the 8051 architecture**, specifically for the **WCH CH559 microcontroller**.

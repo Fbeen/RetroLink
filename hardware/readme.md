@@ -101,7 +101,7 @@ Example connectors:
 
 ---
 
-# Flashing the firmware (Windows)
+# Compiling and flashing the firmware (Windows)
 
 The **CH559L microcontroller** can be programmed directly through USB.
 
@@ -111,7 +111,7 @@ For this you will need a **USB-A to USB-A cable**.
 
 ---
 
-## Flashing instructions
+## Compiling and flashing instructions
 
 1. Clone the complete repository
 
