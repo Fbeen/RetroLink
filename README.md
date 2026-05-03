@@ -13,7 +13,7 @@ It allows modern **USB mice and USB joysticks** to be used on classic systems su
 
 ---
 
-## ? Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [Button Control & LED Feedback](#button-control--led-feedback)
@@ -37,15 +37,15 @@ It allows modern **USB mice and USB joysticks** to be used on classic systems su
 ## Features
 
 - USB mouse support
-- USB joystick support
-- Works with **Atari ST**, **Amiga**, and **C64**
+- USB joystick support, must be a HID joystick.
+- Works with **Atari 8 bit**,  **Atari ST**, **Amiga**, and **C64**
 - Configurable **mouse speed**
 - Switch between **ST mouse** and **Amiga mouse**
 - **Swap** left & right **mouse buttons**
 - Configurable **autofire frequency**
 - **Joystick learning wizard**
 - Configuration stored in flash memory
-- Terminal-based configuration
+- Terminal-based configuration (optional)
 - Configurable with onboard button & LED
 
 ---
@@ -56,8 +56,8 @@ It allows modern **USB mice and USB joysticks** to be used on classic systems su
 
 The RetroLink uses **one button**:
 
-- **Short press** ? Show menu on UART  
-- **Long press** ? Select function via LED flashes  
+- **Short press**  Show menu on UART  
+- **Long press**  Select function via LED flashes  
 
 ---
 
@@ -80,7 +80,7 @@ The RetroLink uses **one button**:
 | 4 | Increase Mouse Speed |
 | 5 | Increase Autofire Speed |
 
-? Release at desired flash count
+Release at desired flash count
 
 ---
 
@@ -97,8 +97,8 @@ Press a key on your controller in the order below to configure it:
 
 ### Feedback
 
-- Each step ? **2 short flashes**
-- Final step ? LED ON for **2 seconds**
+- Each step **2 short flashes**
+- Final step LED ON for **2 seconds**
 - Config is saved automatically
 
 ### To abort the learning wizzard:
@@ -110,21 +110,21 @@ Press a key on your controller in the order below to configure it:
 
 ## Mouse Mode (2 flashes)
 
-- 1 flash ? Atari ST  
-- 2 flashes ? Amiga  
+- 1 flash Atari ST  
+- 2 flashes Amiga  
 
 ---
 
 ## Mouse Buttons (3 flashes)
 
-- 1 flash ? Normal  
-- 2 flashes ? Swapped  
+- 1 flash Normal  
+- 2 flashes Swapped  
 
 ---
 
 ## Mouse Speed (4 flashes)
 
-Cycles 1 ? 5 ? 1
+Cycles from 1 to 5 
 
 | Flashes | Speed |
 |--------|------|
@@ -152,7 +152,7 @@ Cycles 1 ? 5 ? 1
 
 - Settings are stored in flash
 - Persist after reboot
-- LED = primary UI without UART
+- LED is primary UI without UART
 
 ---
 
@@ -252,10 +252,10 @@ See the [hardware section](/hardware/README.md).
 
 # Connecting RetroLink
 
-1. Plug into DB9 mouse or joystick port on your ST / Amiga /C64
+1. Plug into DB9 mouse or joystick port on your Atari 8 bit / ST / Amiga /C64
 2. Connect HID mouse/controller to the USB-A port
 3. *Optional: connect micro USB cable to your PC to use the console*
-4.  For joystick emulation run the **learning wizzard**
+4.  For joystick emulation run the **learning wizzard** once.
 
 ---
 
